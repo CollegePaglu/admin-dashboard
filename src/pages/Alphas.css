@@ -1,0 +1,143 @@
+.alphas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.75rem;
+    animation: fadeIn 0.6s ease;
+}
+
+.alpha-card {
+    padding: 1.75rem;
+    border-radius: 1.25rem;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--gray-100);
+    position: relative;
+    overflow: hidden;
+}
+
+.alpha-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-gradient);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s;
+}
+
+.alpha-card:hover::before {
+    transform: scaleX(1);
+}
+
+.alpha-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.12),
+        0 0 0 1px rgba(102, 126, 234, 0.1);
+}
+
+.alpha-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 2px solid var(--gray-100);
+}
+
+.alpha-header h3 {
+    margin: 0;
+    color: var(--gray-800);
+    font-size: 1.375rem;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+.alpha-details {
+    margin-bottom: 1.25rem;
+}
+
+.alpha-details p {
+    margin: 0.625rem 0;
+    color: var(--gray-600);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.6;
+}
+
+.alpha-details strong {
+    color: var(--gray-800);
+    font-weight: 700;
+}
+
+.alpha-actions {
+    display: flex;
+    gap: 0.625rem;
+}
+
+.btn-verify,
+.btn-suspend,
+.btn-approve-small,
+.btn-reject-small,
+.btn-delete-small {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-verify,
+.btn-approve-small {
+    background: linear-gradient(135deg, var(--success), #059669);
+    color: white;
+}
+
+.btn-verify:hover,
+.btn-approve-small:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-suspend {
+    background: linear-gradient(135deg, var(--warning), #d97706);
+    color: white;
+}
+
+.btn-suspend:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.btn-reject-small,
+.btn-delete-small {
+    background: linear-gradient(135deg, var(--error), #dc2626);
+    color: white;
+}
+
+.btn-reject-small:hover,
+.btn-delete-small:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.btn-delete-small {
+    flex: none;
+    padding: 0.5rem 0.875rem;
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .alphas-grid {
+        grid-template-columns: 1fr;
+    }
+}

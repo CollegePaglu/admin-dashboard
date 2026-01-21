@@ -1,32 +1,32 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 
-// API Configuration
-const API_BASE = 'http://localhost:5000/api/v1';
+// API and utilities
+import { api } from './api/client';
+import { ENDPOINTS, ORDER_STATUS, LISTING_STATUS, PAYMENT_STATUS, ALPHA_STATUS, STATUS_COLORS } from './config/constants';
+import { formatCurrency, formatDate, formatRelativeTime, formatStatus, getInitials } from './utils/formatters';
+import { exportToCSV } from './utils/exportData';
 
-// Create axios instance
-const api = axios.create({
-  baseURL: API_BASE,
-  headers: { 'Content-Type': 'application/json' }
-});
+// Components
+import DataTable from './components/DataTable';
+import Modal from './components/Modal';
+import ConfirmDialog from './components/ConfirmDialog';
+import SearchBar from './components/SearchBar';
 
-// Add auth interceptor
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('adminToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// Hooks
+import { usePagination } from './hooks/usePagination';
 
-// Auth Context
+// ============================================
+// AUTH CONTEXT
+// ============================================
+
 const AuthContext = createContext(null);
 
 export const useAuth = () => useContext(AuthContext);
 
-// Auth Provider
 function AuthProvider({ children }) {
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -65,13 +65,35 @@ function AuthProvider({ children }) {
   );
 }
 
-// Protected Route
+// ============================================
+// PROTECTED ROUTE
+// ============================================
+
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? children : <Navigate to="/login" />;
 }
 
-// Login Page
+// Import Sidebar
+import Sidebar from './components/Sidebar';
+
+// ============================================
+// STATUS BADGE COMPONENT
+// ============================================
+
+function StatusBadge({ status }) {
+  const color = STATUS_COLORS[status] || '#6b7280';
+  return (
+    <span className="status-badge" style={{ backgroundColor: color }}>
+      {formatStatus(status)}
+    </span>
+  );
+}
+
+// ============================================
+// LOGIN PAGE
+// ============================================
+
 function LoginPage() {
   const [step, setStep] = useState('credentials');
   const [phone, setPhone] = useState('');
@@ -87,28 +109,37 @@ function LoginPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    try {
-      const res = await api.post('/admin-auth/otp/send', { phone, collegeId });
-      setDevOtp(res.data.otp || '');
-      setStep('otp');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send OTP');
+
+    const { data, error: apiError } = await api.post(ENDPOINTS.ADMIN_AUTH_SEND_OTP, { phone, collegeId });
+
+    if (apiError) {
+      setError(apiError.message);
+      setLoading(false);
+      return;
     }
+
+    setDevOtp(data.otp || '');
+    setStep('otp');
     setLoading(false);
+    toast.success('OTP sent successfully!');
   };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    try {
-      const res = await api.post('/admin-auth/otp/verify', { phone, collegeId, otp });
-      login(res.data.admin, res.data.tokens);
-      navigate('/');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Invalid OTP');
+
+    const { data, error: apiError } = await api.post(ENDPOINTS.ADMIN_AUTH_VERIFY_OTP, { phone, collegeId, otp });
+
+    if (apiError) {
+      setError(apiError.message);
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    login(data.admin, data.tokens);
+    toast.success('Login successful!');
+    navigate('/');
   };
 
   return (
@@ -116,7 +147,7 @@ function LoginPage() {
       <div className="login-card glass">
         <div className="login-header">
           <h1>🛡️ Admin Dashboard</h1>
-          <p>CollegePaglu Administration</p>
+          <p>CampusMart Administration</p>
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -174,101 +205,93 @@ function LoginPage() {
   );
 }
 
-// Sidebar Component
-function Sidebar({ active }) {
-  const { admin, logout } = useAuth();
-  const navigate = useNavigate();
+// ============================================
+// DASHBOARD PAGE
+// ============================================
 
-  const menuItems = [
-    { id: 'dashboard', icon: '📊', label: 'Dashboard', path: '/' },
-    { id: 'orders', icon: '📦', label: 'Orders', path: '/orders' },
-    { id: 'payments', icon: '💰', label: 'Payments', path: '/payments' },
-    { id: 'alphas', icon: '👥', label: 'Alphas', path: '/alphas' },
-    { id: 'items', icon: '🛒', label: 'Marketplace', path: '/items' },
-  ];
-
-  return (
-    <aside className="sidebar glass">
-      <div className="sidebar-header">
-        <h2>🛡️ Admin</h2>
-        <span className="admin-name">{admin?.name}</span>
-      </div>
-      <nav className="sidebar-nav">
-        {menuItems.map((item) => (
-          <a
-            key={item.id}
-            href={item.path}
-            className={`nav-item ${active === item.id ? 'active' : ''}`}
-            onClick={(e) => { e.preventDefault(); navigate(item.path); }}
-          >
-            <span className="nav-icon">{item.icon}</span>
-            <span className="nav-label">{item.label}</span>
-          </a>
-        ))}
-      </nav>
-      <button className="logout-btn" onClick={logout}>
-        🚪 Logout
-      </button>
-    </aside>
-  );
-}
-
-// Dashboard Page
 function DashboardPage() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await api.get('/admin/dashboard');
-        setStats(res.data);
-      } catch (err) {
-        console.error('Failed to fetch stats:', err);
-      }
-      setLoading(false);
-    };
     fetchStats();
   }, []);
+
+  const fetchStats = async () => {
+    const { data, error } = await api.get(ENDPOINTS.DASHBOARD);
+    if (error) {
+      toast.error('Failed to load dashboard stats');
+    } else {
+      setStats(data);
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="page-container">
       <Sidebar active="dashboard" />
       <main className="main-content">
-        <h1>Dashboard Overview</h1>
+        <div className="page-header">
+          <h1>Dashboard Overview</h1>
+          <p>Welcome back! Here's what's happening with CampusMart.</p>
+        </div>
+
         {loading ? (
           <div className="loading">Loading statistics...</div>
         ) : stats ? (
           <div className="stats-grid">
             <div className="stat-card glass">
-              <h3>📦 Orders</h3>
-              <div className="stat-value">{stats.orders?.total || 0}</div>
-              <div className="stat-detail">Pending: {stats.orders?.pending || 0}</div>
+              <div className="stat-icon">📦</div>
+              <div className="stat-info">
+                <h3>Orders</h3>
+                <div className="stat-value">{stats.orders?.total || 0}</div>
+                <div className="stat-detail">Pending: {stats.orders?.pending || 0}</div>
+              </div>
             </div>
+
             <div className="stat-card glass">
-              <h3>💰 Revenue</h3>
-              <div className="stat-value">₹{stats.orders?.revenue || 0}</div>
-              <div className="stat-detail">Completed: {stats.orders?.completed || 0}</div>
+              <div className="stat-icon">💰</div>
+              <div className="stat-info">
+                <h3>Revenue</h3>
+                <div className="stat-value">{formatCurrency(stats.orders?.revenue || 0)}</div>
+                <div className="stat-detail">Completed: {stats.orders?.completed || 0}</div>
+              </div>
             </div>
+
             <div className="stat-card glass">
-              <h3>📝 Assignments</h3>
-              <div className="stat-value">{stats.assignments?.total || 0}</div>
-              <div className="stat-detail">In Progress: {stats.assignments?.inProgress || 0}</div>
+              <div className="stat-icon">📝</div>
+              <div className="stat-info">
+                <h3>Assignments</h3>
+                <div className="stat-value">{stats.assignments?.total || 0}</div>
+                <div className="stat-detail">In Progress: {stats.assignments?.inProgress || 0}</div>
+              </div>
             </div>
+
             <div className="stat-card glass">
-              <h3>👥 Alphas</h3>
-              <div className="stat-value">{stats.alphas?.verified || 0}</div>
-              <div className="stat-detail">Pending: {stats.alphas?.pending || 0}</div>
+              <div className="stat-icon">⭐</div>
+              <div className="stat-info">
+                <h3>Alphas</h3>
+                <div className="stat-value">{stats.alphas?.verified || 0}</div>
+                <div className="stat-detail">Pending: {stats.alphas?.pending || 0}</div>
+              </div>
             </div>
+
             <div className="stat-card glass">
-              <h3>📅 Today's Schedules</h3>
-              <div className="stat-value">{stats.schedules?.today || 0}</div>
-              <div className="stat-detail">Pending: {stats.schedules?.pending || 0}</div>
+              <div className="stat-icon">📅</div>
+              <div className="stat-info">
+                <h3>Today's Schedules</h3>
+                <div className="stat-value">{stats.schedules?.today || 0}</div>
+                <div className="stat-detail">Pending: {stats.schedules?.pending || 0}</div>
+              </div>
             </div>
+
             <div className="stat-card glass">
-              <h3>💳 Pending Payments</h3>
-              <div className="stat-value">{stats.payments?.pendingRequests || 0}</div>
-              <div className="stat-detail">₹{stats.payments?.totalPending || 0}</div>
+              <div className="stat-icon">💳</div>
+              <div className="stat-info">
+                <h3>Pending Payments</h3>
+                <div className="stat-value">{stats.payments?.pendingRequests || 0}</div>
+                <div className="stat-detail">{formatCurrency(stats.payments?.totalPending || 0)}</div>
+              </div>
             </div>
           </div>
         ) : (
@@ -279,276 +302,34 @@ function DashboardPage() {
   );
 }
 
-// Orders Page
-function OrdersPage() {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+// Import pages
+import UsersPage from './pages/Users';
+import MarketplacePage from './pages/Marketplace';
+import OrdersPage from './pages/Orders';
+import PaymentsPage from './pages/Payments';
+import AlphasPage from './pages/Alphas';
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const res = await api.get('/admin/orders');
-        setOrders(res.data.orders || []);
-      } catch (err) {
-        console.error('Failed to fetch orders:', err);
-      }
-      setLoading(false);
-    };
-    fetchOrders();
-  }, []);
-
-  return (
-    <div className="page-container">
-      <Sidebar active="orders" />
-      <main className="main-content">
-        <h1>Orders Management</h1>
-        {loading ? (
-          <div className="loading">Loading orders...</div>
-        ) : (
-          <div className="table-container glass">
-            <table>
-              <thead>
-                <tr>
-                  <th>Order #</th>
-                  <th>Buyer</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.length === 0 ? (
-                  <tr><td colSpan="5">No orders found</td></tr>
-                ) : orders.map((order) => (
-                  <tr key={order._id}>
-                    <td>{order.orderNumber}</td>
-                    <td>{order.buyerId?.name || 'N/A'}</td>
-                    <td>₹{order.totalAmount}</td>
-                    <td><span className={`badge ${order.status}`}>{order.status}</span></td>
-                    <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
-
-// Payments Page
-function PaymentsPage() {
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchPayments = async () => {
-      try {
-        const res = await api.get('/admin/payments/requests');
-        setRequests(res.data.requests || []);
-      } catch (err) {
-        console.error('Failed to fetch payments:', err);
-      }
-      setLoading(false);
-    };
-    fetchPayments();
-  }, []);
-
-  const handleApprove = async (id) => {
-    try {
-      await api.post(`/admin/payments/requests/${id}/approve`);
-      setRequests(requests.filter(r => r._id !== id));
-    } catch (err) {
-      alert('Failed to approve request');
-    }
-  };
-
-  return (
-    <div className="page-container">
-      <Sidebar active="payments" />
-      <main className="main-content">
-        <h1>Payment Requests</h1>
-        {loading ? (
-          <div className="loading">Loading payment requests...</div>
-        ) : (
-          <div className="table-container glass">
-            <table>
-              <thead>
-                <tr>
-                  <th>Requester</th>
-                  <th>Type</th>
-                  <th>Amount</th>
-                  <th>Net Amount</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requests.length === 0 ? (
-                  <tr><td colSpan="6">No payment requests</td></tr>
-                ) : requests.map((req) => (
-                  <tr key={req._id}>
-                    <td>{req.requesterId?.name || 'N/A'}</td>
-                    <td>{req.requesterType}</td>
-                    <td>₹{req.amount}</td>
-                    <td>₹{req.netAmount}</td>
-                    <td><span className={`badge ${req.status}`}>{req.status}</span></td>
-                    <td>
-                      {req.status === 'pending' && (
-                        <button className="btn-sm btn-success" onClick={() => handleApprove(req._id)}>
-                          Approve
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
-
-// Alphas Page
-function AlphasPage() {
-  const [alphas, setAlphas] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchAlphas = async () => {
-      try {
-        const res = await api.get('/alphas');
-        setAlphas(res.data.alphas || []);
-      } catch (err) {
-        console.error('Failed to fetch alphas:', err);
-      }
-      setLoading(false);
-    };
-    fetchAlphas();
-  }, []);
-
-  const handleVerify = async (id) => {
-    try {
-      await api.post(`/admin/alphas/${id}/verify`);
-      setAlphas(alphas.map(a => a._id === id ? { ...a, status: 'verified' } : a));
-    } catch (err) {
-      alert('Failed to verify alpha');
-    }
-  };
-
-  return (
-    <div className="page-container">
-      <Sidebar active="alphas" />
-      <main className="main-content">
-        <h1>Alphas Management</h1>
-        {loading ? (
-          <div className="loading">Loading alphas...</div>
-        ) : (
-          <div className="cards-grid">
-            {alphas.length === 0 ? (
-              <div>No alphas found</div>
-            ) : alphas.map((alpha) => (
-              <div key={alpha._id} className="alpha-card glass">
-                <div className="alpha-header">
-                  <h3>{alpha.user?.name || 'Unknown'}</h3>
-                  <span className={`badge ${alpha.status}`}>{alpha.status}</span>
-                </div>
-                <div className="alpha-details">
-                  <p><strong>Skills:</strong> {alpha.skills?.join(', ') || 'N/A'}</p>
-                  <p><strong>Rating:</strong> ⭐ {alpha.rating?.toFixed(1) || '0.0'}</p>
-                  <p><strong>Completed:</strong> {alpha.completedAssignments || 0} assignments</p>
-                </div>
-                {alpha.status === 'pending' && (
-                  <button className="btn-primary" onClick={() => handleVerify(alpha._id)}>
-                    Verify Alpha
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
-
-// Marketplace Items Page
-function ItemsPage() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const res = await api.get('/admin/items');
-        setItems(res.data.items || []);
-      } catch (err) {
-        console.error('Failed to fetch items:', err);
-      }
-      setLoading(false);
-    };
-    fetchItems();
-  }, []);
-
-  return (
-    <div className="page-container">
-      <Sidebar active="items" />
-      <main className="main-content">
-        <h1>Marketplace Items</h1>
-        {loading ? (
-          <div className="loading">Loading items...</div>
-        ) : (
-          <div className="table-container glass">
-            <table>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Seller</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.length === 0 ? (
-                  <tr><td colSpan="5">No items found</td></tr>
-                ) : items.map((item) => (
-                  <tr key={item._id}>
-                    <td>{item.title}</td>
-                    <td>{item.category}</td>
-                    <td>₹{item.price}</td>
-                    <td>{item.sellerId?.name || 'N/A'}</td>
-                    <td><span className={`badge ${item.status}`}>{item.status}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
-
-// Main App
-function App() {
+// Export App component
+export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
+          <Route path="/marketplace" element={<ProtectedRoute><MarketplacePage /></ProtectedRoute>} />
           <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
           <Route path="/payments" element={<ProtectedRoute><PaymentsPage /></ProtectedRoute>} />
           <Route path="/alphas" element={<ProtectedRoute><AlphasPage /></ProtectedRoute>} />
-          <Route path="/items" element={<ProtectedRoute><ItemsPage /></ProtectedRoute>} />
+          {/* Placeholder routes for future pages */}
+          <Route path="/community" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/stories" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/assignments" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/transactions" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
         </Routes>
+        <ToastContainer position="top-right" autoClose={3000} />
       </AuthProvider>
     </BrowserRouter>
   );
 }
-
-export default App;
