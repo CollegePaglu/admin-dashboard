@@ -12,6 +12,7 @@ export default function Sidebar({ active }) {
         { id: 'users', icon: '👥', label: 'Users', path: '/users' },
         { id: 'marketplace', icon: '🛒', label: 'Marketplace', path: '/marketplace' },
         { id: 'orders', icon: '📦', label: 'Orders', path: '/orders' },
+        { id: 'lazypeeps', icon: '🍕', label: 'LazyPeeps', path: '/lazypeeps' },
         { id: 'community', icon: '💬', label: 'Community', path: '/community' },
         { id: 'stories', icon: '📸', label: 'Stories', path: '/stories' },
         { id: 'assignments', icon: '📝', label: 'Assignments', path: '/assignments' },

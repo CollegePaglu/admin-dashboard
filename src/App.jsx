@@ -308,6 +308,7 @@ import MarketplacePage from './pages/Marketplace';
 import OrdersPage from './pages/Orders';
 import PaymentsPage from './pages/Payments';
 import AlphasPage from './pages/Alphas';
+import LazyPeepsPage from './pages/LazyPeeps';
 
 // Export App component
 export default function App() {
@@ -322,6 +323,7 @@ export default function App() {
           <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
           <Route path="/payments" element={<ProtectedRoute><PaymentsPage /></ProtectedRoute>} />
           <Route path="/alphas" element={<ProtectedRoute><AlphasPage /></ProtectedRoute>} />
+          <Route path="/lazypeeps" element={<ProtectedRoute><LazyPeepsPage /></ProtectedRoute>} />
           {/* Placeholder routes for future pages */}
           <Route path="/community" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/stories" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
