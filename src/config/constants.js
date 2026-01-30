@@ -180,6 +180,7 @@ export const ENDPOINTS = {
     // Assignments
     ASSIGNMENTS: '/assignments',
     ASSIGNMENT_BY_ID: (id) => `/assignments/${id}`,
+    ASSIGN_ALPHA: (id) => `/assignments/${id}/assign-alpha`,
     MY_ASSIGNMENTS: '/assignments/my',
 
     // Transactions

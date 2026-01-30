@@ -138,5 +138,6 @@ export const getInitials = (name) => {
  */
 export const formatStatus = (status) => {
     if (!status) return 'Unknown';
+    if (status === 'submitted') return 'Completed'; // Display submitted as Completed
     return snakeToTitle(status);
 };
