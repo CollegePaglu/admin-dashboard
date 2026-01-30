@@ -309,6 +309,7 @@ import OrdersPage from './pages/Orders';
 import PaymentsPage from './pages/Payments';
 import AlphasPage from './pages/Alphas';
 import LazyPeepsPage from './pages/LazyPeeps';
+import AssignmentsPage from './pages/Assignments';
 
 // Export App component
 export default function App() {
@@ -327,7 +328,7 @@ export default function App() {
           {/* Placeholder routes for future pages */}
           <Route path="/community" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/stories" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-          <Route path="/assignments" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/assignments" element={<ProtectedRoute><AssignmentsPage /></ProtectedRoute>} />
           <Route path="/transactions" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
         </Routes>
         <ToastContainer position="top-right" autoClose={3000} />

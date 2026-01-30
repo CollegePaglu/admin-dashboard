@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import Sidebar from '../components/Sidebar';
+import DataTable from '../components/DataTable';
 import { api } from '../api/client';
 import { ENDPOINTS, ALPHA_STATUS, STATUS_COLORS } from '../config/constants';
-import { formatStatus } from '../utils/formatters';
+import { formatStatus, getInitials } from '../utils/formatters';
 import './Alphas.css';
 
 function StatusBadge({ status }) {
@@ -30,6 +31,7 @@ export default function AlphasPage() {
         if (error) {
             toast.error('Failed to load alphas');
         } else {
+            console.log('Alphas Fetch Data:', data); // Debug log
             setAlphas(data.alphas || data.data || []);
         }
         setLoading(false);
@@ -57,6 +59,111 @@ export default function AlphasPage() {
         }
     };
 
+    const columns = [
+        {
+            key: 'user',
+            label: 'User',
+            sortable: false,
+            render: (_user, row) => {
+                const user = row.user;
+                const displayName = user?.displayName ||
+                    (user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : null) ||
+                    'Unknown';
+
+                return (
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600 overflow-hidden">
+                            {user?.avatar ? (
+                                <img src={user.avatar} alt={displayName} className="w-full h-full object-cover" />
+                            ) : (
+                                getInitials(displayName)
+                            )}
+                        </div>
+                        <div>
+                            <div className="font-medium text-gray-900">
+                                {displayName}
+                            </div>
+                            {user?.email && (
+                                <div className="text-xs text-gray-500">{user.email}</div>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+        },
+        {
+            key: 'college',
+            label: 'College & ID',
+            sortable: false,
+            render: (_col, row) => {
+                const user = row.user;
+                return (
+                    <div className="flex flex-col text-sm">
+                        <span className="font-medium text-gray-900">{user?.college?.name || 'N/A'}</span>
+                        <div className="flex flex-col gap-0.5 mt-0.5">
+                            {row.collegeId && (
+                                <span className="text-xs font-semibold text-gray-700">
+                                    ID: {row.collegeId}
+                                </span>
+                            )}
+                            <span className="text-xs text-gray-500">Roll: {user?.college?.rollNumber || 'N/A'}</span>
+                        </div>
+                        {user?.collegeIdCardUrl && (
+                            <a
+                                href={user.collegeIdCardUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-blue-600 hover:text-blue-800 mt-1 underline"
+                            >
+                                View ID Card
+                            </a>
+                        )}
+                    </div>
+                );
+            }
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            render: (status) => <StatusBadge status={status} />
+        },
+        {
+            key: 'skills',
+            label: 'Skills',
+            sortable: false,
+            render: (skills) => <div className="skills-cell" title={skills?.join(', ')}>{skills?.slice(0, 3).join(', ') || 'N/A'}{skills?.length > 3 ? '...' : ''}</div>
+        },
+        {
+            key: 'rating',
+            label: 'Rating',
+            render: (rating) => <div className="rating-cell"><span>⭐</span> {rating?.toFixed(1) || '0.0'}</div>
+        },
+        {
+            key: 'completedAssignments',
+            label: 'Completed',
+            render: (val) => val || 0
+        },
+        {
+            key: 'actions',
+            label: 'Actions',
+            sortable: false,
+            render: (_, row) => (
+                <div className="flex gap-2">
+                    {row.status === 'pending' && (
+                        <button className="btn-verify" onClick={(e) => { e.stopPropagation(); handleVerify(row._id); }}>
+                            Verify
+                        </button>
+                    )}
+                    {row.status === 'verified' && (
+                        <button className="btn-suspend" onClick={(e) => { e.stopPropagation(); handleSuspend(row._id); }}>
+                            Suspend
+                        </button>
+                    )}
+                </div>
+            )
+        }
+    ];
+
     return (
         <div className="page-container">
             <Sidebar active="alphas" />
@@ -79,39 +186,12 @@ export default function AlphasPage() {
                     </div>
                 </div>
 
-                {loading ? (
-                    <div className="loading">Loading alphas...</div>
-                ) : (
-                    <div className="alphas-grid">
-                        {alphas.length === 0 ? (
-                            <div className="empty-message">No alphas found</div>
-                        ) : alphas.map((alpha) => (
-                            <div key={alpha._id} className="alpha-card glass">
-                                <div className="alpha-header">
-                                    <h3>{alpha.user?.name || 'Unknown'}</h3>
-                                    <StatusBadge status={alpha.status} />
-                                </div>
-                                <div className="alpha-details">
-                                    <p><strong>Skills:</strong> {alpha.skills?.join(', ') || 'N/A'}</p>
-                                    <p><strong>Rating:</strong> ⭐ {alpha.rating?.toFixed(1) || '0.0'}</p>
-                                    <p><strong>Completed:</strong> {alpha.completedAssignments || 0} assignments</p>
-                                </div>
-                                <div className="alpha-actions">
-                                    {alpha.status === 'pending' && (
-                                        <button className="btn-verify" onClick={() => handleVerify(alpha._id)}>
-                                            ✓ Verify Alpha
-                                        </button>
-                                    )}
-                                    {alpha.status === 'verified' && (
-                                        <button className="btn-suspend" onClick={() => handleSuspend(alpha._id)}>
-                                            ⚠️ Suspend
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                <DataTable
+                    columns={columns}
+                    data={alphas}
+                    loading={loading}
+                    emptyMessage="No alphas found"
+                />
             </main>
         </div>
     );
