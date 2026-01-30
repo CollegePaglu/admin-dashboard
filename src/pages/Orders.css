@@ -53,14 +53,14 @@
 }
 
 .btn-status:hover:not(:disabled) {
-    border-color: #667eea;
-    color: #667eea;
+    border-color: #4b5444;
+    color: #4b5444;
     transform: translateY(-2px);
 }
 
 .btn-status.active {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
+    background: linear-gradient(135deg, #4b5444, #3a4034);
+    color: #fcfdfb;
     border-color: transparent;
 }
 
