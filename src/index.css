@@ -5,34 +5,49 @@
 @layer base {
   :root {
     /* Elegant Earth Palette - Premium Wine Industry Inspired */
-    --color-base-white: #fcfdfb;     /* Cream White */
-    --color-base-100: #e3e9db;       /* Soft Sage */
-    --color-base-200: #c6cbc2;       /* Muted Sage */
-    --color-base-300: #d7dbd3;       /* Light Sage */
-    --color-primary: #4b5444;        /* Sage Green */
-    --color-dark: #141615;           /* Charcoal */
-    
+    --color-base-white: #fcfdfb;
+    /* Cream White */
+    --color-base-100: #e3e9db;
+    /* Soft Sage */
+    --color-base-200: #c6cbc2;
+    /* Muted Sage */
+    --color-base-300: #d7dbd3;
+    /* Light Sage */
+    --color-primary: #4b5444;
+    /* Sage Green */
+    --color-dark: #141615;
+    /* Charcoal */
+
     /* Extended palette for refined design */
     --color-text-primary: #141615;
     --color-text-secondary: #4b5444;
     --color-text-tertiary: #737871;
     --color-border: #c6cbc2;
     --color-surface: #e3e9db;
-    --color-error: #9b2c2c;          /* Deep red (refined) */
+    --color-error: #9b2c2c;
+    /* Deep red (refined) */
   }
 
   body {
-    @apply bg-background text-dark antialiased font-sans selection:bg-primary/20 selection:text-primary;
+    @apply bg-background text-dark antialiased font-sans;
+  }
+
+  ::selection {
+    background-color: rgba(75, 84, 68, 0.2);
+    color: var(--color-primary);
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-base-white/90 backdrop-blur-xl border border-base-200/50 shadow-sm rounded-lg;
+    @apply bg-base-white backdrop-blur-xl border border-base-200 shadow-sm rounded-lg;
+    background-color: rgba(252, 253, 251, 0.9);
   }
 
   .glass-dark {
-    @apply bg-dark/5 backdrop-blur-md border border-dark/5;
+    @apply backdrop-blur-md border;
+    background-color: rgba(20, 22, 21, 0.05);
+    border-color: rgba(20, 22, 21, 0.05);
   }
 
   .btn-primary {
@@ -40,7 +55,7 @@
   }
 
   .input-field {
-    @apply w-full px-5 py-3 bg-base-white border border-base-200 rounded-lg text-dark placeholder-base-200/80 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-all;
+    @apply w-full px-5 py-3 bg-base-white border border-base-200 rounded-lg text-dark focus:outline-none focus:border-primary transition-all;
   }
 
   /* Card styles with elegant shadow and spacing */
