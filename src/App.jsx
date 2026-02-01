@@ -304,12 +304,18 @@ function DashboardPage() {
 
 // Import pages
 import UsersPage from './pages/Users';
+import AnalyticsUserDetail from './pages/analytics/AnalyticsUserDetail';
+import AnalyticsSocietyDetail from './pages/analytics/AnalyticsSocietyDetail';
 import MarketplacePage from './pages/Marketplace';
 import OrdersPage from './pages/Orders';
 import PaymentsPage from './pages/Payments';
 import AlphasPage from './pages/Alphas';
 import LazyPeepsPage from './pages/LazyPeeps';
 import AssignmentsPage from './pages/Assignments';
+import AnalyticsPage from './pages/Analytics';
+import StoriesPage from './pages/Stories';
+import CommunityPage from './pages/Community';
+import TransactionsPage from './pages/Transactions';
 
 // Export App component
 export default function App() {
@@ -325,11 +331,14 @@ export default function App() {
           <Route path="/payments" element={<ProtectedRoute><PaymentsPage /></ProtectedRoute>} />
           <Route path="/alphas" element={<ProtectedRoute><AlphasPage /></ProtectedRoute>} />
           <Route path="/lazypeeps" element={<ProtectedRoute><LazyPeepsPage /></ProtectedRoute>} />
-          {/* Placeholder routes for future pages */}
-          <Route path="/community" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-          <Route path="/stories" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+          <Route path="/analytics/users/:id" element={<ProtectedRoute><AnalyticsUserDetail /></ProtectedRoute>} />
+          <Route path="/analytics/societies/:id" element={<ProtectedRoute><AnalyticsSocietyDetail /></ProtectedRoute>} />
+          {/* Community and Content */}
+          <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
+          <Route path="/stories" element={<ProtectedRoute><StoriesPage /></ProtectedRoute>} />
           <Route path="/assignments" element={<ProtectedRoute><AssignmentsPage /></ProtectedRoute>} />
-          <Route path="/transactions" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/transactions" element={<ProtectedRoute><TransactionsPage /></ProtectedRoute>} />
         </Routes>
         <ToastContainer position="top-right" autoClose={3000} />
       </AuthProvider>

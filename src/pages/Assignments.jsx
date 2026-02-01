@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import Sidebar from '../components/Sidebar';
 import DataTable from '../components/DataTable';
 import AssignAlphaModal from '../components/AssignAlphaModal';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { api } from '../api/client';
 import { ENDPOINTS, ASSIGNMENT_STATUS, STATUS_COLORS } from '../config/constants';
 import { formatCurrency, formatDate, formatStatus, getInitials } from '../utils/formatters';
@@ -22,6 +23,7 @@ export default function AssignmentsPage() {
     const [loading, setLoading] = useState(true);
     const [assignModalOpen, setAssignModalOpen] = useState(false);
     const [selectedAssignment, setSelectedAssignment] = useState(null);
+    const [deleteDialog, setDeleteDialog] = useState({ open: false, assignment: null });
 
     useEffect(() => {
         fetchAssignments();
@@ -94,6 +96,18 @@ export default function AssignmentsPage() {
 
     const handleAssignSuccess = () => {
         fetchAssignments(); // Refresh list to show updated status
+    };
+
+    const handleDelete = async (assignment) => {
+        const { error } = await api.delete(ENDPOINTS.ASSIGNMENT_BY_ID(assignment._id));
+
+        if (error) {
+            toast.error('Failed to delete assignment: ' + (error.message || 'Unknown error'));
+        } else {
+            toast.success('Assignment deleted successfully');
+            setAssignments(assignments.filter(a => a._id !== assignment._id));
+        }
+        setDeleteDialog({ open: false, assignment: null });
     };
 
     const columns = [
@@ -183,6 +197,12 @@ export default function AssignmentsPage() {
                             <span>⚡</span> Assign
                         </button>
                     )}
+                    <button
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-200"
+                        onClick={(e) => { e.stopPropagation(); setDeleteDialog({ open: true, assignment: row }); }}
+                    >
+                        <span>🗑️</span> Delete
+                    </button>
                 </div>
             )
         }
@@ -226,6 +246,16 @@ export default function AssignmentsPage() {
                         onAssign={handleAssignSuccess}
                     />
                 )}
+
+                <ConfirmDialog
+                    isOpen={deleteDialog.open}
+                    onClose={() => setDeleteDialog({ open: false, assignment: null })}
+                    onConfirm={() => handleDelete(deleteDialog.assignment)}
+                    title="Delete Assignment"
+                    message={`Are you sure you want to delete "${deleteDialog.assignment?.title}"? This action cannot be undone.`}
+                    confirmText="Delete"
+                    type="danger"
+                />
             </main>
         </div>
     );

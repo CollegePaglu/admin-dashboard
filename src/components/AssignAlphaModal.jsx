@@ -4,6 +4,7 @@ import Modal from './Modal';
 import { api } from '../api/client';
 import { ENDPOINTS } from '../config/constants';
 import { formatCurrency, getInitials } from '../utils/formatters';
+import './AssignAlphaModal.css';
 
 export default function AssignAlphaModal({ isOpen, onClose, assignment, onAssign }) {
   const [alphas, setAlphas] = useState([]);
@@ -73,27 +74,18 @@ export default function AssignAlphaModal({ isOpen, onClose, assignment, onAssign
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Assign Alpha" size="medium">
-      <div className="p-4 max-h-[80vh] overflow-y-auto">
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-
+      <div className="assign-modal-content">
+        <form onSubmit={handleSubmit}>
           {/* Summary Card */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-2xl border border-blue-100 shadow-sm">
-            <div className="flex justify-between items-center">
+          <div className="assignment-summary-card">
+            <div className="summary-header">
               <div>
-                <p className="text-xs font-bold text-blue-600 uppercase tracking-wide">
-                  Assignment
-                </p>
-                <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
-                  {assignment?.title}
-                </h3>
+                <p className="summary-label">Assignment</p>
+                <h3 className="summary-value">{assignment?.title}</h3>
               </div>
-
-              <div className="text-right">
-                <p className="text-xs font-bold text-blue-600 uppercase tracking-wide">
-                  Budget
-                </p>
-                <p className="text-lg font-bold text-indigo-700">
+              <div style={{ textAlign: 'right' }}>
+                <p className="summary-label">Budget</p>
+                <p className="summary-value budget">
                   {formatCurrency(assignment?.budget?.min)} - {formatCurrency(assignment?.budget?.max)}
                 </p>
               </div>
@@ -101,59 +93,45 @@ export default function AssignAlphaModal({ isOpen, onClose, assignment, onAssign
           </div>
 
           {/* Select Alpha */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-              Select Alpha
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                Required
-              </span>
+          <div className="form-group">
+            <label className="form-label">
+              Select Alpha <span className="required-badge">Required</span>
             </label>
-
             {loading ? (
-              <div className="h-11 w-full bg-gray-200 animate-pulse rounded-xl"></div>
+              <div className="loading-skeleton"></div>
             ) : (
-              <div className="relative">
-                <select
-                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none"
-                  value={selectedAlpha}
-                  onChange={(e) => setSelectedAlpha(e.target.value)}
-                  required
-                >
-                  <option value="" disabled>Choose an Alpha...</option>
-                  {alphas.map(alpha => (
-                    <option key={alpha._id} value={alpha.userId || alpha.user?._id}>
-                      {getInitials(getAlphaName(alpha))} - {getAlphaName(alpha)} • {alpha.skills?.slice(0, 2).join(', ')}
-                    </option>
-                  ))}
-                </select>
-
-                <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-500">
-                  ▼
-                </div>
-              </div>
+              <select
+                className="form-select"
+                value={selectedAlpha}
+                onChange={(e) => setSelectedAlpha(e.target.value)}
+                required
+              >
+                <option value="" disabled>Choose an Alpha...</option>
+                {alphas.map(alpha => (
+                  <option key={alpha._id} value={alpha.userId || alpha.user?._id}>
+                    {getInitials(getAlphaName(alpha))} - {getAlphaName(alpha)} • {alpha.skills?.slice(0, 2).join(', ')}
+                  </option>
+                ))}
+              </select>
             )}
-
             {!loading && alphas.length === 0 && (
-              <p className="text-xs text-amber-600">⚠ No verified alphas available.</p>
+              <p className="error-message">⚠ No verified alphas available.</p>
             )}
           </div>
 
           {/* Agreed Price */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-              Agreed Price
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                Required
-              </span>
+          <div className="form-group">
+            <label className="form-label">
+              Agreed Price <span className="required-badge">Required</span>
             </label>
-
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+            <div style={{ position: 'relative' }}>
+              <span className="currency-symbol" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }}>
                 ₹
               </span>
               <input
                 type="number"
-                className="w-full pl-8 pr-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                className="form-input"
+                style={{ paddingLeft: '2rem' }}
                 value={agreedPrice}
                 onChange={(e) => setAgreedPrice(e.target.value)}
                 placeholder="Enter amount"
@@ -164,27 +142,26 @@ export default function AssignAlphaModal({ isOpen, onClose, assignment, onAssign
           </div>
 
           {/* Footer Buttons */}
-          <div className="flex justify-between items-center pt-5 border-t border-gray-100">
+          <div className="modal-actions">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition active:scale-95"
+              className="btn-cancel"
               disabled={submitting}
             >
               Cancel
             </button>
-
             <button
               type="submit"
               disabled={submitting || loading || !selectedAlpha}
-              className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl shadow-md hover:shadow-lg hover:from-indigo-700 hover:to-blue-700 transition-all active:scale-95 disabled:opacity-50"
+              className="btn-submit"
             >
               {submitting ? 'Assigning...' : 'Confirm Assignment'}
             </button>
           </div>
-
         </form>
       </div>
     </Modal>
   );
 }
+
