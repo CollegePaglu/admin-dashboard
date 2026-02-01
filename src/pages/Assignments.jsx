@@ -34,12 +34,58 @@ export default function AssignmentsPage() {
 
         if (error) {
             toast.error('Failed to load assignments');
-        } else {
-            console.log('Assignments Data:', data.data);
-            setAssignments(data.data || []);
+            setLoading(false);
+            return;
         }
+
+        let assignmentsList = data.data || [];
+        console.log('Assignments Data:', assignmentsList);
+
+        // Identify requesters with missing name info
+        const requesterIds = [];
+        const requesterMap = {};
+
+        assignmentsList.forEach((assignment) => {
+            const req = assignment.requester;
+            // Check if requester exists but has no usable name
+            if (req && req._id && !req.name && !req.firstName && !req.displayName) {
+                if (!requesterIds.includes(req._id)) {
+                    requesterIds.push(req._id);
+                }
+            }
+        });
+
+        // Fetch user details for missing requesters
+        if (requesterIds.length > 0) {
+            const userPromises = requesterIds.map(async (id) => {
+                const { data: userData, error: userError } = await api.get(ENDPOINTS.USER_BY_ID(id));
+                if (!userError && userData?.data) {
+                    requesterMap[id] = userData.data;
+                }
+            });
+            await Promise.all(userPromises);
+            console.log('Fetched user details:', requesterMap);
+
+            // Merge user details back into assignments
+            assignmentsList = assignmentsList.map((assignment) => {
+                const req = assignment.requester;
+                if (req && req._id && requesterMap[req._id]) {
+                    return {
+                        ...assignment,
+                        requester: {
+                            ...req,
+                            ...requesterMap[req._id],
+                        },
+                    };
+                }
+                return assignment;
+            });
+        }
+
+        setAssignments(assignmentsList);
         setLoading(false);
     };
+
 
     const handleAssignClick = (assignment) => {
         setSelectedAssignment(assignment);
