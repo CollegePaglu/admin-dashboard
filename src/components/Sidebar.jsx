@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../App';
 import { getInitials } from '../utils/formatters';
@@ -6,26 +7,61 @@ export default function Sidebar({ active }) {
     const { admin, logout } = useAuth();
     const navigate = useNavigate();
 
-    const menuItems = [
-        { id: 'dashboard', icon: '📊', label: 'Dashboard', path: '/' },
-        { id: 'users', icon: '👥', label: 'Users', path: '/users' },
-        { id: 'marketplace', icon: '🛒', label: 'Marketplace', path: '/marketplace' },
-        { id: 'analytics', icon: '📈', label: 'Analytics', path: '/analytics' },
-        { id: 'orders', icon: '📦', label: 'Orders', path: '/orders' },
-        { id: 'lazypeeps', icon: '🍕', label: 'LazyPeeps', path: '/lazypeeps' },
-        { id: 'community', icon: '💬', label: 'Community', path: '/community' },
-        { id: 'stories', icon: '📸', label: 'Stories', path: '/stories' },
-        { id: 'assignments', icon: '📝', label: 'Assignments', path: '/assignments' },
-        { id: 'alphas', icon: '⭐', label: 'Alphas', path: '/alphas' },
-        { id: 'payments', icon: '💰', label: 'Payments', path: '/payments' },
-        { id: 'transactions', icon: '💳', label: 'Transactions', path: '/transactions' },
+    // State for collapsible sections
+    const [openSections, setOpenSections] = useState({
+        campusmart: true,
+        lazypeeps: true,
+        community: true
+    });
+
+    const toggleSection = (section) => {
+        setOpenSections(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }));
+    };
+
+    // Organized menu sections
+    const sections = [
+        {
+            id: 'campusmart',
+            label: 'CampusMart',
+            icon: '🛒',
+            items: [
+                { id: 'dashboard', icon: '📊', label: 'Overview', path: '/' },
+                { id: 'assignments', icon: '📝', label: 'Assignments', path: '/assignments' },
+                { id: 'alphas', icon: '⭐', label: 'Alphas', path: '/alphas' },
+                { id: 'payments', icon: '💳', label: 'Payments', path: '/payments' },
+                { id: 'transactions', icon: '🧾', label: 'Transactions', path: '/transactions' },
+                { id: 'users', icon: '🔍', label: 'User Mgmt', path: '/users' },
+            ]
+        },
+        {
+            id: 'lazypeeps',
+            label: 'LazyPeeps',
+            icon: '🍕',
+            items: [
+                { id: 'lazypeeps', icon: '🍕', label: 'Overview', path: '/lazypeeps' },
+                { id: 'orders', icon: '📦', label: 'Orders', path: '/orders' },
+            ]
+        },
+        {
+            id: 'community',
+            label: 'Community',
+            icon: '💬',
+            items: [
+                { id: 'community', icon: '💬', label: 'Posts', path: '/community' },
+                { id: 'stories', icon: '📸', label: 'Stories', path: '/stories' },
+                { id: 'analytics', icon: '📈', label: 'Analytics', path: '/analytics' },
+            ]
+        }
     ];
 
     return (
         <aside className="sidebar">
             <div className="sidebar-header">
                 <h2 className="sidebar-logo">
-                    <span>🛡️</span> CampusMart
+                    <span>🛡️</span> Admin Panel
                 </h2>
             </div>
 
@@ -40,20 +76,38 @@ export default function Sidebar({ active }) {
             </div>
 
             <nav className="sidebar-nav">
-                {menuItems.map((item) => {
-                    const isActive = active === item.id;
-
-                    return (
+                {sections.map((section) => (
+                    <div key={section.id} className="nav-section">
                         <button
-                            key={item.id}
-                            onClick={() => navigate(item.path)}
-                            className={`nav-item ${isActive ? 'active' : ''}`}
+                            className="nav-section-header"
+                            onClick={() => toggleSection(section.id)}
                         >
-                            <span className="nav-icon">{item.icon}</span>
-                            <span className="nav-label">{item.label}</span>
+                            <span className="nav-icon">{section.icon}</span>
+                            <span className="nav-label">{section.label}</span>
+                            <span className={`nav-chevron ${openSections[section.id] ? 'open' : ''}`}>
+                                ▼
+                            </span>
                         </button>
-                    );
-                })}
+
+                        {openSections[section.id] && (
+                            <div className="nav-section-items">
+                                {section.items.map((item) => {
+                                    const isActive = active === item.id;
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            onClick={() => navigate(item.path)}
+                                            className={`nav-item ${isActive ? 'active' : ''}`}
+                                        >
+                                            <span className="nav-icon">{item.icon}</span>
+                                            <span className="nav-label">{item.label}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+                ))}
             </nav>
 
             <div className="sidebar-footer">

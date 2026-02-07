@@ -222,7 +222,8 @@ function DashboardPage() {
     if (error) {
       toast.error('Failed to load dashboard stats');
     } else {
-      setStats(data);
+      // API returns { success, data: { orders, assignments, ... } }
+      setStats(data?.data || data);
     }
     setLoading(false);
   };
@@ -240,15 +241,6 @@ function DashboardPage() {
           <div className="loading">Loading statistics...</div>
         ) : stats ? (
           <div className="stats-grid">
-            <div className="stat-card glass">
-              <div className="stat-icon">📦</div>
-              <div className="stat-info">
-                <h3>Orders</h3>
-                <div className="stat-value">{stats.orders?.total || 0}</div>
-                <div className="stat-detail">Pending: {stats.orders?.pending || 0}</div>
-              </div>
-            </div>
-
             <div className="stat-card glass">
               <div className="stat-icon">💰</div>
               <div className="stat-info">
@@ -273,15 +265,6 @@ function DashboardPage() {
                 <h3>Alphas</h3>
                 <div className="stat-value">{stats.alphas?.verified || 0}</div>
                 <div className="stat-detail">Pending: {stats.alphas?.pending || 0}</div>
-              </div>
-            </div>
-
-            <div className="stat-card glass">
-              <div className="stat-icon">📅</div>
-              <div className="stat-info">
-                <h3>Today's Schedules</h3>
-                <div className="stat-value">{stats.schedules?.today || 0}</div>
-                <div className="stat-detail">Pending: {stats.schedules?.pending || 0}</div>
               </div>
             </div>
 
@@ -317,6 +300,12 @@ import StoriesPage from './pages/Stories';
 import CommunityPage from './pages/Community';
 import TransactionsPage from './pages/Transactions';
 
+// CampusMart Analytics Pages
+import CampusMartDashboard from './pages/campusmart/Dashboard';
+import CampusMartRevenue from './pages/campusmart/Revenue';
+import CampusMartUsers from './pages/campusmart/Users';
+import CampusMartAlphas from './pages/campusmart/Alphas';
+
 // Export App component
 export default function App() {
   return (
@@ -339,6 +328,11 @@ export default function App() {
           <Route path="/stories" element={<ProtectedRoute><StoriesPage /></ProtectedRoute>} />
           <Route path="/assignments" element={<ProtectedRoute><AssignmentsPage /></ProtectedRoute>} />
           <Route path="/transactions" element={<ProtectedRoute><TransactionsPage /></ProtectedRoute>} />
+          {/* CampusMart Analytics */}
+          <Route path="/campusmart" element={<ProtectedRoute><CampusMartDashboard /></ProtectedRoute>} />
+          <Route path="/campusmart/revenue" element={<ProtectedRoute><CampusMartRevenue /></ProtectedRoute>} />
+          <Route path="/campusmart/users" element={<ProtectedRoute><CampusMartUsers /></ProtectedRoute>} />
+          <Route path="/campusmart/alphas" element={<ProtectedRoute><CampusMartAlphas /></ProtectedRoute>} />
         </Routes>
         <ToastContainer position="top-right" autoClose={3000} />
       </AuthProvider>
