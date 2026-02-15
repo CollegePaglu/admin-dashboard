@@ -190,4 +190,7 @@ export const ENDPOINTS = {
     // Cart
     CART: '/cart',
     CART_COUNT: '/cart/count',
+
+    // System Config
+    CONFIG: '/config/admin',
 };

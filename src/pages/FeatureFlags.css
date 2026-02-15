@@ -1,0 +1,44 @@
+.feature-flags-table-container {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.status-badge.active {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.inactive {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.btn-toggle {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-toggle.on {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.btn-toggle.on:hover {
+    background-color: #fecaca;
+}
+
+.btn-toggle.off {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.btn-toggle.off:hover {
+    background-color: #a7f3d0;
+}

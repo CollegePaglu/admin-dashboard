@@ -50,9 +50,15 @@ export default function Sidebar({ active }) {
             label: 'Community',
             icon: '💬',
             items: [
-                { id: 'community', icon: '💬', label: 'Posts', path: '/community' },
-                { id: 'stories', icon: '📸', label: 'Stories', path: '/stories' },
                 { id: 'analytics', icon: '📈', label: 'Analytics', path: '/analytics' },
+            ]
+        },
+        {
+            id: 'settings',
+            label: 'Settings',
+            icon: '⚙️',
+            items: [
+                { id: 'feature-flags', icon: '🚩', label: 'Feature Flags', path: '/feature-flags' },
             ]
         }
     ];
