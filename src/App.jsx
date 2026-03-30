@@ -289,6 +289,7 @@ function DashboardPage() {
 import UsersPage from './pages/Users';
 import AnalyticsUserDetail from './pages/analytics/AnalyticsUserDetail';
 import AnalyticsSocietyDetail from './pages/analytics/AnalyticsSocietyDetail';
+import AnalyticsPostDetail from './pages/analytics/AnalyticsPostDetail';
 import MarketplacePage from './pages/Marketplace';
 import OrdersPage from './pages/Orders';
 import PaymentsPage from './pages/Payments';
@@ -324,6 +325,7 @@ export default function App() {
           <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
           <Route path="/analytics/users/:id" element={<ProtectedRoute><AnalyticsUserDetail /></ProtectedRoute>} />
           <Route path="/analytics/societies/:id" element={<ProtectedRoute><AnalyticsSocietyDetail /></ProtectedRoute>} />
+          <Route path="/analytics/posts/:id" element={<ProtectedRoute><AnalyticsPostDetail /></ProtectedRoute>} />
           {/* Community and Content */}
           <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
           <Route path="/stories" element={<ProtectedRoute><StoriesPage /></ProtectedRoute>} />

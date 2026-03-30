@@ -99,14 +99,17 @@ const AnalyticsPosts = () => {
             sortable: true,
             onSort: () => handleSort('impressions')
         },
-        // {
-        //     header: 'Action',
-        //     render: (post) => (
-        //         <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-        //             View
-        //         </button>
-        //     )
-        // }
+        {
+            header: 'Action',
+            render: (post) => (
+                <a 
+                    href={`/analytics/posts/${post.postId?._id}`}
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium whitespace-nowrap"
+                >
+                    View Details →
+                </a>
+            )
+        }
     ];
 
     return (
