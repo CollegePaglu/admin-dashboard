@@ -2,6 +2,27 @@
    LAZYPEEPS PAGE STYLES
    ============================================ */
 
+/* LazyPeeps Page */
+.lazypeeps-page {
+  padding: 20px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 20px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #141615;
+  font-weight: 600;
+}
+
 /* Tabs */
 .tabs {
   display: flex;
@@ -48,6 +69,22 @@
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+.header-actions .btn-primary {
+  background: linear-gradient(135deg, #4b5444 0%, #3a4034 100%);
+  color: #fcfdfb;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.header-actions .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(75, 84, 68, 0.4);
 }
 
 /* Data Table Enhancements */
@@ -213,7 +250,53 @@
   overflow: hidden;
 }
 
-/* Form Enhancements */
+/* ============================================
+   FORM STYLES
+   ============================================ */
+
+.form-group {
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #333;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group input[type='checkbox'] {
+  width: auto;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
 .form-actions {
   display: flex;
   gap: 0.75rem;
@@ -221,6 +304,14 @@
   margin-top: 1.5rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--gray-200);
+}
+
+/* ============================================
+   FORM VALIDATION & ERROR STYLES
+   ============================================ */
+
+.required {
+  color: var(--error);
 }
 
 .input-error {
@@ -235,8 +326,12 @@
   font-weight: 500;
 }
 
-.required {
-  color: var(--error);
+.success-message {
+  display: block;
+  color: #27ae60;
+  font-size: 13px;
+  margin-top: 6px;
+  font-weight: 500;
 }
 
 /* Loading */
@@ -267,6 +362,8 @@
     flex-wrap: nowrap;
     justify-content: flex-start;
     padding: 0.375rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .tab {
@@ -291,6 +388,19 @@
   .header-actions {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .header-actions .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
   }
 
   .printout-orders-container {
