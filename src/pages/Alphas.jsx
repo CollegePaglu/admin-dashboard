@@ -59,6 +59,17 @@ export default function AlphasPage() {
         }
     };
 
+    const handleUnsuspend = async (id) => {
+        const { error } = await api.post(ENDPOINTS.VERIFY_ALPHA(id));
+
+        if (error) {
+            toast.error('Failed to unsuspend alpha');
+        } else {
+            toast.success('Alpha unsuspended and verified');
+            setAlphas(alphas.map(a => a._id === id ? { ...a, status: 'verified' } : a));
+        }
+    };
+
     const columns = [
         {
             key: 'user',
@@ -157,6 +168,11 @@ export default function AlphasPage() {
                     {row.status === 'verified' && (
                         <button className="btn-suspend" onClick={(e) => { e.stopPropagation(); handleSuspend(row._id); }}>
                             Suspend
+                        </button>
+                    )}
+                    {row.status === 'suspended' && (
+                        <button className="btn-verify" onClick={(e) => { e.stopPropagation(); handleUnsuspend(row._id); }}>
+                            Unsuspend
                         </button>
                     )}
                 </div>

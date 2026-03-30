@@ -156,9 +156,9 @@ export const ENDPOINTS = {
 
     // Marketplace
     ITEMS: '/admin/items',
-    LISTINGS: '/marketplace/listings',
-    LISTING_BY_ID: (id) => `/marketplace/listings/${id}`,
-    MY_LISTINGS: '/marketplace/listings/user/my',
+    LISTINGS: '/listings',
+    LISTING_BY_ID: (id) => `/listings/${id}`,
+    MY_LISTINGS: '/listings/user/my',
 
     // Alphas
     ALPHAS: '/alphas',
@@ -190,4 +190,7 @@ export const ENDPOINTS = {
     // Cart
     CART: '/cart',
     CART_COUNT: '/cart/count',
+
+    // System Config
+    CONFIG: '/config/admin',
 };

@@ -193,6 +193,35 @@ export const api = {
             return { data: null, error: handleApiError(error) };
         }
     },
+    // Analytics
+    analytics: {
+        getOverview: () =>
+            api.get('/analytics/admin/overview'),
+
+        getUsers: (params) =>
+            api.get('/analytics/admin/users', { params }),
+
+        getUserDetail: (id) =>
+            api.get(`/analytics/admin/users/${id}`),
+
+        getUserRecommendations: (id) =>
+            api.get(`/analytics/admin/users/${id}/recommendations`),
+
+        getSocieties: (params) =>
+            api.get('/analytics/admin/societies', { params }),
+
+        getSocietyDetail: (id) =>
+            api.get(`/analytics/admin/societies/${id}`),
+
+        getPosts: (params) =>
+            api.get('/analytics/admin/posts', { params }),
+
+        getPostDetail: (id) =>
+            api.get(`/analytics/admin/posts/${id}`),
+
+        triggerUserAggregation: (id) =>
+            api.post(`/analytics/admin/aggregate/user/${id}`),
+    },
 };
 
 export default apiClient;

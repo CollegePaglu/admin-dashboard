@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import DataTable from '../components/DataTable';
 import SearchBar from '../components/SearchBar';
 import Modal from '../components/Modal';
+import Sidebar from '../components/Sidebar';
+import { toast } from 'react-toastify';
 import '../pages/LazyPeeps.css';
 
 // ============================================
@@ -272,7 +274,7 @@ const LazyPeeps = () => {
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({});
   const [formErrors, setFormErrors] = useState({});
-  const [useDummyData, setUseDummyData] = useState(true);
+  const [useDummyData, setUseDummyData] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [fetchError, setFetchError] = useState(null);
 
@@ -318,47 +320,51 @@ const LazyPeeps = () => {
           throw new Error(`Failed to fetch vendors: ${response.status} ${response.statusText}`);
         }
         const data = await response.json();
-        if (!data || !Array.isArray(data.data)) {
+        const items = Array.isArray(data) ? data : (data.data || []);
+        if (!Array.isArray(items)) {
           throw new Error('Invalid response format from server');
         }
-        setVendors(data.data);
+        setVendors(items);
       } else if (activeTab === 'snacks') {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/vendors/products`, { headers });
         if (!response.ok) {
           throw new Error(`Failed to fetch snacks: ${response.status} ${response.statusText}`);
         }
         const data = await response.json();
-        if (!data || !Array.isArray(data.data)) {
+        const items = Array.isArray(data) ? data : (data.data || []);
+        if (!Array.isArray(items)) {
           throw new Error('Invalid response format from server');
         }
-        setSnacks(data.data);
+        setSnacks(items);
       } else if (activeTab === 'orders') {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/lazypeeps/orders`, { headers });
         if (!response.ok) {
           throw new Error(`Failed to fetch orders: ${response.status} ${response.statusText}`);
         }
         const data = await response.json();
-        if (!data || !Array.isArray(data.data)) {
+        const items = Array.isArray(data) ? data : (data.data || []);
+        if (!Array.isArray(items)) {
           throw new Error('Invalid response format from server');
         }
-        setOrders(data.data);
+        setOrders(items);
       } else if (activeTab === 'printout') {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/lazypeeps/printout-orders`, { headers });
         if (!response.ok) {
-          throw new Error(`Failed to fetch printout orders: ${response.status} ${response.statusText}`);
+          console.warn('Printout orders endpoint not available');
+          setPrintoutOrders([]);
+          return;
         }
         const data = await response.json();
-        if (!data || !Array.isArray(data.data)) {
-          throw new Error('Invalid response format from server');
-        }
-        setPrintoutOrders(data.data);
+        const items = Array.isArray(data) ? data : (data.data || []);
+        setPrintoutOrders(items);
       }
       setFetchError(null);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch data';
       console.error('[LazyPeeps] Fetch Error:', errorMessage);
       setFetchError(errorMessage);
-      alert(`Error: ${errorMessage}`);
+      // Show toast instead of alert for better UX
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -435,8 +441,8 @@ const LazyPeeps = () => {
           activeTab === 'vendors'
             ? `/vendors/${item._id}`
             : activeTab === 'snacks'
-            ? `/vendors/${item.vendorId}/products/${item._id}`
-            : `/lazypeeps/orders/${item._id}`;
+              ? `/vendors/${item.vendorId}/products/${item._id}`
+              : `/lazypeeps/orders/${item._id}`;
 
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
           method: 'DELETE',
@@ -481,7 +487,9 @@ const LazyPeeps = () => {
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
-      alert('Please fix the errors in the form');
+      // Show specific validation errors
+      const errorMessages = Object.entries(errors).map(([field, msg]) => `${field}: ${msg}`).join(', ');
+      toast.error(`Form errors: ${errorMessages}`);
       return;
     }
 
@@ -502,8 +510,8 @@ const LazyPeeps = () => {
         activeTab === 'vendors'
           ? `/vendors${editingItem ? `/${editingItem._id}` : ''}`
           : activeTab === 'snacks'
-          ? `/vendors/${sanitizedData.vendorId}/products${editingItem ? `/${editingItem._id}` : ''}`
-          : `/lazypeeps/orders`;
+            ? `/vendors/${sanitizedData.vendorId}/products${editingItem ? `/${editingItem._id}` : ''}`
+            : `/lazypeeps/orders`;
 
       console.log(`[LazyPeeps] ${method} ${endpoint}`, sanitizedData);
 
@@ -887,137 +895,143 @@ const LazyPeeps = () => {
   });
 
   return (
-    <div className="page lazypeeps-page">
-      <div className="page-header">
-        <h1>LazyPeeps Management</h1>
-        <div className="header-actions">
-          {activeTab !== 'orders' && (
-            <button className="btn-primary" onClick={() => setShowModal(true)}>
-              + Add {activeTab === 'vendors' ? 'Vendor' : 'Snack'}
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="tabs">
-        <button
-          className={`tab ${activeTab === 'vendors' ? 'active' : ''}`}
-          onClick={() => setActiveTab('vendors')}
-        >
-          Vendors ({vendors.length})
-        </button>
-        <button
-          className={`tab ${activeTab === 'snacks' ? 'active' : ''}`}
-          onClick={() => setActiveTab('snacks')}
-        >
-          Snacks ({snacks.length})
-        </button>
-        <button
-          className={`tab ${activeTab === 'orders' ? 'active' : ''}`}
-          onClick={() => setActiveTab('orders')}
-        >
-          Snack Orders ({orders.length})
-        </button>
-        <button
-          className={`tab ${activeTab === 'printout' ? 'active' : ''}`}
-          onClick={() => setActiveTab('printout')}
-        >
-          Print Orders ({printoutOrders.length})
-        </button>
-      </div>
-
-      {/* Search */}
-      <SearchBar value={searchTerm} onChange={setSearchTerm} placeholder={`Search ${activeTab}...`} />
-
-      {/* Printout Orders Table with Approve/Reject Actions */}
-      {activeTab === 'printout' && !loading && (
-        <div className="printout-orders-container">
-          <div style={{ overflowX: 'auto' }}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  {printoutColumns.map(col => (
-                    <th key={col.key} style={{ width: col.width }}>{col.label}</th>
-                  ))}
-                  <th style={{ width: '200px' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {printoutOrders.map(order => (
-                  <tr key={order._id}>
-                    {printoutColumns.map(col => (
-                      <td key={col.key} style={{ width: col.width }}>
-                        {col.render ? col.render(order[col.key]) : order[col.key]}
-                      </td>
-                    ))}
-                    <td style={{ width: '200px' }}>
-                      {order.status === 'pending' && (
-                        <>
-                          <button
-                            className="btn-approve-small"
-                            onClick={() => handleApprovePrintout(order._id, 'approved')}
-                          >
-                            ✓ Approve
-                          </button>
-                          <button
-                            className="btn-reject-small"
-                            onClick={() => handleApprovePrintout(order._id, 'rejected')}
-                          >
-                            ✗ Reject
-                          </button>
-                        </>
-                      )}
-                      {order.status === 'approved' && (
-                        <button
-                          className="btn-status-small"
-                          onClick={() => handleApprovePrintout(order._id, 'printing')}
-                        >
-                          📠 Start Print
-                        </button>
-                      )}
-                      {order.status === 'printing' && (
-                        <button
-                          className="btn-status-small"
-                          onClick={() => handleApprovePrintout(order._id, 'ready')}
-                        >
-                          ✓ Mark Ready
-                        </button>
-                      )}
-                      {order.status === 'ready' && (
-                        <span className="status-delivered">Ready for pickup</span>
-                      )}
-                      {order.status === 'rejected' && (
-                        <span className="status-rejected">Rejected</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+    <div className="page-container">
+      <Sidebar active="lazypeeps" />
+      <main className="main-content">
+        <div className="page-header">
+          <div>
+            <h1>LazyPeeps Management</h1>
+            <p>Manage vendors, snacks, and food orders</p>
+          </div>
+          <div className="header-actions">
+            {(activeTab === 'vendors' || activeTab === 'snacks') && (
+              <button className="btn-primary" onClick={() => setShowModal(true)}>
+                + Add {activeTab === 'vendors' ? 'Vendor' : 'Snack'}
+              </button>
+            )}
           </div>
         </div>
-      )}
 
-      {/* Data Table for Other Tabs */}
-      {activeTab !== 'printout' && (
-        <>
-          {loading ? (
-            <div className="loading">Loading...</div>
-          ) : (
-            <DataTable
-              columns={currentColumns}
-              data={filteredData}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              rowsPerPage={15}
-            />
-          )}
-        </>
-      )}
+        {/* Tabs */}
+        <div className="tabs">
+          <button
+            className={`tab ${activeTab === 'vendors' ? 'active' : ''}`}
+            onClick={() => setActiveTab('vendors')}
+          >
+            Vendors ({vendors.length})
+          </button>
+          <button
+            className={`tab ${activeTab === 'snacks' ? 'active' : ''}`}
+            onClick={() => setActiveTab('snacks')}
+          >
+            Snacks ({snacks.length})
+          </button>
+          <button
+            className={`tab ${activeTab === 'orders' ? 'active' : ''}`}
+            onClick={() => setActiveTab('orders')}
+          >
+            Snack Orders ({orders.length})
+          </button>
+          <button
+            className={`tab ${activeTab === 'printout' ? 'active' : ''}`}
+            onClick={() => setActiveTab('printout')}
+          >
+            Print Orders ({printoutOrders.length})
+          </button>
+        </div>
 
-      {/* Modal */}
-      {renderModal()}
+        {/* Search */}
+        <SearchBar value={searchTerm} onChange={setSearchTerm} placeholder={`Search ${activeTab}...`} />
+
+        {/* Printout Orders Table with Approve/Reject Actions */}
+        {activeTab === 'printout' && !loading && (
+          <div className="printout-orders-container">
+            <div style={{ overflowX: 'auto' }}>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    {printoutColumns.map(col => (
+                      <th key={col.key} style={{ width: col.width }}>{col.label}</th>
+                    ))}
+                    <th style={{ width: '200px' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {printoutOrders.map(order => (
+                    <tr key={order._id}>
+                      {printoutColumns.map(col => (
+                        <td key={col.key} style={{ width: col.width }}>
+                          {col.render ? col.render(order[col.key]) : order[col.key]}
+                        </td>
+                      ))}
+                      <td style={{ width: '200px' }}>
+                        {order.status === 'pending' && (
+                          <>
+                            <button
+                              className="btn-approve-small"
+                              onClick={() => handleApprovePrintout(order._id, 'approved')}
+                            >
+                              ✓ Approve
+                            </button>
+                            <button
+                              className="btn-reject-small"
+                              onClick={() => handleApprovePrintout(order._id, 'rejected')}
+                            >
+                              ✗ Reject
+                            </button>
+                          </>
+                        )}
+                        {order.status === 'approved' && (
+                          <button
+                            className="btn-status-small"
+                            onClick={() => handleApprovePrintout(order._id, 'printing')}
+                          >
+                            📠 Start Print
+                          </button>
+                        )}
+                        {order.status === 'printing' && (
+                          <button
+                            className="btn-status-small"
+                            onClick={() => handleApprovePrintout(order._id, 'ready')}
+                          >
+                            ✓ Mark Ready
+                          </button>
+                        )}
+                        {order.status === 'ready' && (
+                          <span className="status-delivered">Ready for pickup</span>
+                        )}
+                        {order.status === 'rejected' && (
+                          <span className="status-rejected">Rejected</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Data Table for Other Tabs */}
+        {activeTab !== 'printout' && (
+          <>
+            {loading ? (
+              <div className="loading">Loading...</div>
+            ) : (
+              <DataTable
+                columns={currentColumns}
+                data={filteredData}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                rowsPerPage={15}
+              />
+            )}
+          </>
+        )}
+
+        {/* Modal */}
+        {renderModal()}
+      </main>
     </div>
   );
 };

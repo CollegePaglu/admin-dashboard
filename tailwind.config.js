@@ -17,7 +17,7 @@ export default {
                 'base-200': 'var(--color-base-200)',
             },
             fontFamily: {
-                sans: ['Inter', 'sans-serif'],
+                sans: ['Inter', 'system-ui', 'sans-serif'],
                 display: ['Playfair Display', 'serif'],
             },
             animation: {
@@ -37,8 +37,8 @@ export default {
                 slideUp: {
                     '0%': { transform: 'translateY(20px)', opacity: '0' },
                     '100%': { transform: 'translateY(0)', opacity: '1' },
-                }
-            }
+                },
+            },
         },
     },
     plugins: [],

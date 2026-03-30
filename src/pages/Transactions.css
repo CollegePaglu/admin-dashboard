@@ -1,0 +1,12 @@
+/* Transactions Page Styles */
+.font-mono {
+    font-family: 'Courier New', monospace;
+}
+
+.text-green-600 {
+    color: #16a34a;
+}
+
+.capitalize {
+    text-transform: capitalize;
+}
