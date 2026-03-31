@@ -51,6 +51,7 @@ export default function Sidebar({ active }) {
             icon: '💬',
             items: [
                 { id: 'analytics', icon: '📈', label: 'Analytics', path: '/analytics' },
+                { id: 'societies', icon: '🏛️', label: 'Societies', path: '/societies' },
             ]
         },
         {

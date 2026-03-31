@@ -300,6 +300,7 @@ import StoriesPage from './pages/Stories';
 import CommunityPage from './pages/Community';
 import TransactionsPage from './pages/Transactions';
 import FeatureFlagsPage from './pages/FeatureFlags';
+import SocietiesPage from './pages/Societies';
 
 // CampusMart Analytics Pages
 import CampusMartDashboard from './pages/campusmart/Dashboard';
@@ -330,6 +331,7 @@ export default function App() {
           <Route path="/assignments" element={<ProtectedRoute><AssignmentsPage /></ProtectedRoute>} />
           <Route path="/transactions" element={<ProtectedRoute><TransactionsPage /></ProtectedRoute>} />
           <Route path="/feature-flags" element={<ProtectedRoute><FeatureFlagsPage /></ProtectedRoute>} />
+          <Route path="/societies" element={<ProtectedRoute><SocietiesPage /></ProtectedRoute>} />
           {/* CampusMart Analytics */}
           <Route path="/campusmart" element={<ProtectedRoute><CampusMartDashboard /></ProtectedRoute>} />
           <Route path="/campusmart/revenue" element={<ProtectedRoute><CampusMartRevenue /></ProtectedRoute>} />

@@ -183,6 +183,12 @@ export const ENDPOINTS = {
     ASSIGN_ALPHA: (id) => `/assignments/${id}/assign-alpha`,
     MY_ASSIGNMENTS: '/assignments/my',
 
+    // Societies
+    SOCIETIES: '/admin/societies',
+    VERIFY_SOCIETY: (id) => `/admin/societies/${id}/verify`,
+    SUSPEND_SOCIETY: (id) => `/admin/societies/${id}/suspend`,
+    DELETE_SOCIETY: (id) => `/admin/societies/${id}`,
+
     // Transactions
     TRANSACTIONS: '/transactions',
     TRANSACTION_BY_ID: (id) => `/transactions/${id}`,
