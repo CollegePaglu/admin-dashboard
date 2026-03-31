@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../App';
-import { getInitials } from '../utils/formatters';
 
 export default function Sidebar({ active }) {
-    const { admin, logout } = useAuth();
+    const { logout } = useAuth();
     const navigate = useNavigate();
 
-    // State for collapsible sections
+    // State for sections (simplified logic or keep the original for functionality)
     const [openSections, setOpenSections] = useState({
         campusmart: true,
         lazypeeps: true,
-        community: true
+        community: true,
+        settings: false
     });
 
     const toggleSection = (section) => {
@@ -21,12 +21,10 @@ export default function Sidebar({ active }) {
         }));
     };
 
-    // Organized menu sections
     const sections = [
         {
             id: 'campusmart',
-            label: 'CampusMart',
-            icon: '🛒',
+            label: 'College Paglu',
             items: [
                 { id: 'dashboard', icon: '📊', label: 'Overview', path: '/' },
                 { id: 'assignments', icon: '📝', label: 'Assignments', path: '/assignments' },
@@ -39,7 +37,6 @@ export default function Sidebar({ active }) {
         {
             id: 'lazypeeps',
             label: 'LazyPeeps',
-            icon: '🍕',
             items: [
                 { id: 'lazypeeps', icon: '🍕', label: 'Overview', path: '/lazypeeps' },
                 { id: 'orders', icon: '📦', label: 'Orders', path: '/orders' },
@@ -48,7 +45,6 @@ export default function Sidebar({ active }) {
         {
             id: 'community',
             label: 'Community',
-            icon: '💬',
             items: [
                 { id: 'analytics', icon: '📈', label: 'Analytics', path: '/analytics' },
             ]
@@ -56,7 +52,6 @@ export default function Sidebar({ active }) {
         {
             id: 'settings',
             label: 'Settings',
-            icon: '⚙️',
             items: [
                 { id: 'feature-flags', icon: '🚩', label: 'Feature Flags', path: '/feature-flags' },
             ]
@@ -66,37 +61,29 @@ export default function Sidebar({ active }) {
     return (
         <aside className="sidebar">
             <div className="sidebar-header">
-                <h2 className="sidebar-logo">
-                    <span>🛡️</span> Admin Panel
-                </h2>
-            </div>
-
-            <div className="sidebar-profile">
-                <div className="profile-avatar">
-                    {getInitials(admin?.name || 'Admin')}
-                </div>
-                <div className="profile-info">
-                    <p className="profile-name">{admin?.name || 'Admin'}</p>
-                    <p className="profile-role">Administrator</p>
-                </div>
+                <a href="/" className="sidebar-logo cursor-pointer" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
+                    <svg className="sidebar-logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 0L26 10L20 20L14 10L20 0Z" fill="var(--brand-400)" opacity="0.9"/>
+                        <path d="M10 16L16 26L10 36L4 26L10 16Z" fill="#ffffff" opacity="0.8"/>
+                        <path d="M30 16L36 26L30 36L24 26L30 16Z" fill="#ffffff" opacity="0.8"/>
+                        <path d="M20 18L26 28L20 38L14 28L20 18Z" fill="#ffffff"/>
+                    </svg>
+                    <div className="sidebar-logo-text">College Paglu</div>
+                </a>
             </div>
 
             <nav className="sidebar-nav">
                 {sections.map((section) => (
-                    <div key={section.id} className="nav-section">
+                    <div key={section.id} className="mb-4">
                         <button
-                            className="nav-section-header"
+                            className="nav-section-header pb-1"
                             onClick={() => toggleSection(section.id)}
                         >
-                            <span className="nav-icon">{section.icon}</span>
                             <span className="nav-label">{section.label}</span>
-                            <span className={`nav-chevron ${openSections[section.id] ? 'open' : ''}`}>
-                                ▼
-                            </span>
                         </button>
 
                         {openSections[section.id] && (
-                            <div className="nav-section-items">
+                            <div>
                                 {section.items.map((item) => {
                                     const isActive = active === item.id;
                                     return (
@@ -118,7 +105,8 @@ export default function Sidebar({ active }) {
 
             <div className="sidebar-footer">
                 <button className="logout-btn" onClick={logout}>
-                    🚪 Logout
+                    <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="nav-icon" height="20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span className="nav-label">Logout</span>
                 </button>
             </div>
         </aside>

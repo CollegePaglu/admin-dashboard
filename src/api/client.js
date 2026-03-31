@@ -221,6 +221,13 @@ export const api = {
 
         triggerUserAggregation: (id) =>
             api.post(`/analytics/admin/aggregate/user/${id}`),
+
+        // NEW: Commerce and Operations Analytics
+        getCommerce: () => 
+            api.get('/analytics/admin/commerce'),
+        
+        getOperations: () => 
+            api.get('/analytics/admin/operations'),
     },
 };
 

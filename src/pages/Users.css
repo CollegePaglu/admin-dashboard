@@ -121,22 +121,23 @@
     gap: 0.75rem;
     margin-top: 1.5rem;
     padding-top: 1.5rem;
-    border-top: 1px solid var(--gray-200);
+    border-top: 1px solid #e2e8f0;
     flex-wrap: wrap;
     justify-content: flex-end;
 }
 
 .btn-action {
     padding: 0.625rem 1.25rem;
-    border-radius: 0.75rem;
+    border-radius: 0.625rem;
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    font-family: inherit;
 }
 
 .btn-action:disabled {
@@ -145,47 +146,33 @@
 }
 
 .btn-warning {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white;
+    background: #fffbeb;
+    color: #d97706;
+    border: 1.5px solid rgba(217, 119, 6, 0.2);
 }
-
 .btn-warning:hover:not(:disabled) {
-    background: linear-gradient(135deg, #d97706, #b45309);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    background: #fef3c7;
+    border-color: #d97706;
 }
 
 .btn-success {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1.5px solid rgba(22, 163, 74, 0.2);
 }
-
 .btn-success:hover:not(:disabled) {
-    background: linear-gradient(135deg, #059669, #047857);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    background: #dcfce7;
+    border-color: #16a34a;
 }
 
 .btn-danger {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1.5px solid rgba(220, 38, 38, 0.2);
 }
-
 .btn-danger:hover:not(:disabled) {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-}
-
-.btn-secondary {
-    background: var(--gray-100);
-    color: var(--gray-700);
-    border: 1px solid var(--gray-300);
-}
-
-.btn-secondary:hover:not(:disabled) {
-    background: var(--gray-200);
-    transform: translateY(-2px);
+    background: #fee2e2;
+    border-color: #dc2626;
 }
 
 /* Status Badges */
