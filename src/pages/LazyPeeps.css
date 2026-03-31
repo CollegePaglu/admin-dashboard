@@ -191,16 +191,16 @@
   margin-right: 0.5rem;
 }
 
-<<<<<<< HEAD
 .tab:hover {
-  color: #4b5444;
+  color: var(--brand-500);
 }
 
 .tab.active {
-  color: #4b5444;
-  border-bottom: 3px solid #4b5444;
+  color: var(--brand-600);
+  border-bottom: 3px solid var(--brand-500);
   margin-bottom: -1px;
-=======
+}
+
 .btn-approve-small {
   background: #dcfce7;
   color: #16a34a;
@@ -209,7 +209,6 @@
 .btn-approve-small:hover {
   background: #22c55e;
   color: white;
->>>>>>> 18b0fb0948c414357235c4ed5b6c7ec932270fa6
 }
 
 .btn-reject-small {
@@ -337,79 +336,16 @@
   font-weight: 500;
 }
 
-<<<<<<< HEAD
-.btn-primary {
-  background: linear-gradient(135deg, #4b5444 0%, #3a4034 100%);
-  color: #fcfdfb;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(75, 84, 68, 0.4);
-}
-
-.btn-secondary {
-  background: #e3e9db;
-  color: #4b5444;
-  border: 1px solid #c6cbc2;
-}
-
-.btn-secondary:hover {
-  background: #d7dbd3;
-}
-
 /* Status Badge */
 .status-badge {
   display: inline-block;
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: var(--r-xl);
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
 }
 
-.status-badge.active {
-  background: #d4edda;
-  color: #155724;
-}
-
-.status-badge.inactive {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.status-badge.pending {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.status-badge.confirmed {
-  background: #d1ecf1;
-  color: #0c5460;
-}
-
-.status-badge.preparing {
-  background: #e2e3e5;
-  color: #383d41;
-}
-
-.status-badge.ready {
-  background: #cfe2ff;
-  color: #084298;
-}
-
-.status-badge.delivered {
-  background: #d1ecf1;
-  color: #0c5460;
-}
-
-.status-badge.cancelled {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-/* Loading State */
-=======
 .success-message {
   display: block;
   color: #27ae60;
@@ -419,7 +355,6 @@
 }
 
 /* Loading */
->>>>>>> 18b0fb0948c414357235c4ed5b6c7ec932270fa6
 .loading {
   text-align: center;
   padding: 3rem;
@@ -488,83 +423,13 @@
     flex-direction: column;
   }
 
-<<<<<<< HEAD
   .btn-primary,
   .btn-secondary {
     width: 100%;
   }
-}
-/* ============================================
-   FORM VALIDATION & ERROR STYLES
-   ============================================ */
 
-.required {
-  color: #e74c3c;
-  font-weight: bold;
-  margin-left: 4px;
-}
-
-.input-error {
-  border-color: #e74c3c !important;
-  background-color: #fadbd8 !important;
-}
-
-.input-error:focus {
-  border-color: #c0392b !important;
-  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
-}
-
-.error-message {
-  display: block;
-  color: #e74c3c;
-  font-size: 13px;
-  margin-top: 6px;
-  font-weight: 500;
-  line-height: 1.4;
-}
-
-.form-group {
-  position: relative;
-}
-
-/* Success Feedback */
-.success-message {
-  display: block;
-  color: #27ae60;
-  font-size: 13px;
-  margin-top: 6px;
-  font-weight: 500;
-}
-
-/* Loading State */
-.loading {
-  text-align: center;
-  padding: 40px 20px;
-  font-size: 16px;
-  color: #666;
-}
-
-.loading::after {
-  content: '';
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  margin-left: 8px;
-  background: linear-gradient(90deg, #4b5444 0%, #3a4034 100%);
-  border-radius: 50%;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.3;
-=======
   .printout-orders-container {
     padding: 0.5rem;
->>>>>>> 18b0fb0948c414357235c4ed5b6c7ec932270fa6
   }
 }
 
