@@ -73,6 +73,33 @@ function AuthorChip({ author, authorType }) {
 
 // ─── Post Detail Modal ───────────────────────────────────────────────────────
 function PostModal({ post, onClose, onDelete }) {
+    const [comments, setComments] = useState([]);
+    const [loadingComments, setLoadingComments] = useState(false);
+
+    useEffect(() => {
+        if (!post) return;
+        const fetchComments = async () => {
+            setLoadingComments(true);
+            const { data, error } = await api.get(`/community/posts/${post._id}/comments`, { params: { limit: 50 } });
+            if (!error && data?.data?.data) {
+                setComments(data.data.data);
+            }
+            setLoadingComments(false);
+        };
+        fetchComments();
+    }, [post]);
+
+    const handleDeleteComment = async (commentId) => {
+        if (!window.confirm('Delete this comment?')) return;
+        const { error } = await api.delete(`/community/comments/${commentId}`);
+        if (error) {
+            toast.error('Failed to delete comment: ' + (error.message || 'Unknown error'));
+        } else {
+            toast.success('Comment deleted');
+            setComments(prev => prev.filter(c => c._id !== commentId));
+        }
+    };
+
     if (!post) return null;
     const images = (post.images || []).map(normaliseImg).filter(Boolean);
     const name   = post.author?.displayName || post.author?.name || 'Unknown';
@@ -153,19 +180,49 @@ function PostModal({ post, onClose, onDelete }) {
                         )}
                     </div>
 
+                    {/* Comments Section */}
+                    <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid #f1f5f9' }}>
+                        <h4 style={{ margin: '0 0 16px', fontSize: 16, color: '#1e293b' }}>Comments ({post.commentCount || 0})</h4>
+                        {loadingComments ? (
+                            <div style={{ textAlign: 'center', padding: 20, color: '#94a3b8' }}>Loading comments...</div>
+                        ) : comments.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: 20, color: '#94a3b8', background: '#f8fafc', borderRadius: 12 }}>No comments yet.</div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: 300, overflowY: 'auto', paddingRight: 8 }}>
+                                {comments.map(c => (
+                                    <div key={c._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: '#f8fafc', padding: 12, borderRadius: 12 }}>
+                                        <div>
+                                            <div style={{ fontWeight: 600, fontSize: 13, color: '#1e293b' }}>{c.author?.displayName || c.author?.name || 'Anonymous'}</div>
+                                            <div style={{ fontSize: 13, color: '#475569', marginTop: 4 }}>{c.content}</div>
+                                        </div>
+                                        <button 
+                                            onClick={() => handleDeleteComment(c._id)}
+                                            style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12, fontWeight: 600, padding: 4 }}
+                                            title="Delete Comment"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
                     {/* Delete button */}
-                    <button
-                        onClick={() => onDelete(post._id)}
-                        style={{
-                            width: '100%', padding: '12px 20px', borderRadius: 12,
-                            background: 'linear-gradient(135deg,#ef4444,#dc2626)',
-                            color: '#fff', border: 'none', cursor: 'pointer',
-                            fontWeight: 700, fontSize: 14, letterSpacing: '0.04em',
-                            boxShadow: '0 4px 12px rgba(239,68,68,0.3)'
-                        }}
-                    >
-                        🗑️ Delete This Post
-                    </button>
+                    <div style={{ marginTop: 24 }}>
+                        <button
+                            onClick={() => onDelete(post._id)}
+                            style={{
+                                width: '100%', padding: '12px 20px', borderRadius: 12,
+                                background: 'linear-gradient(135deg,#ef4444,#dc2626)',
+                                color: '#fff', border: 'none', cursor: 'pointer',
+                                fontWeight: 700, fontSize: 14, letterSpacing: '0.04em',
+                                boxShadow: '0 4px 12px rgba(239,68,68,0.3)'
+                            }}
+                        >
+                            🗑️ Delete This Post
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

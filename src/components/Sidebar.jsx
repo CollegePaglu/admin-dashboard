@@ -49,6 +49,7 @@ export default function Sidebar({ active }) {
                 { id: 'analytics', icon: '📈', label: 'Analytics', path: '/analytics' },
                 { id: 'community', icon: '🗂️', label: 'Posts Mgmt', path: '/community' },
                 { id: 'stories', icon: '📸', label: 'Stories', path: '/stories' },
+                { id: 'events', icon: '📅', label: 'Events', path: '/events' },
             ]
         },
         {

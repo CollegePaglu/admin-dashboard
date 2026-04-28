@@ -173,9 +173,12 @@ export const ENDPOINTS = {
     POSTS: '/community/posts',
     POST_BY_ID: (id) => `/community/posts/${id}`,
     POST_COMMENTS: (id) => `/community/posts/${id}/comments`,
+    COMMENT_BY_ID: (id) => `/community/comments/${id}`,
     STORIES: '/community/stories',
     STORY_BY_ID: (id) => `/community/stories/${id}`,
     STORY_FEED: '/community/stories/feed',
+    EVENTS: '/community/events',
+    EVENT_BY_ID: (id) => `/community/events/${id}`,
 
     // Assignments
     ASSIGNMENTS: '/assignments',
