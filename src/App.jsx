@@ -210,79 +210,8 @@ function LoginPage() {
 // ============================================
 
 function DashboardPage() {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    const { data, error } = await api.get(ENDPOINTS.DASHBOARD);
-    if (error) {
-      toast.error('Failed to load dashboard stats');
-    } else {
-      // API returns { success, data: { orders, assignments, ... } }
-      setStats(data?.data || data);
-    }
-    setLoading(false);
-  };
-
-  return (
-    <div className="page-container">
-      <Sidebar active="dashboard" />
-      <main className="main-content">
-        <div className="page-header">
-          <h1>Dashboard Overview</h1>
-          <p>Welcome back! Here's what's happening with CampusMart.</p>
-        </div>
-
-        {loading ? (
-          <div className="loading">Loading statistics...</div>
-        ) : stats ? (
-          <div className="stats-grid">
-            <div className="stat-card glass">
-              <div className="stat-icon">💰</div>
-              <div className="stat-info">
-                <h3>Revenue</h3>
-                <div className="stat-value">{formatCurrency(stats.orders?.revenue || 0)}</div>
-                <div className="stat-detail">Completed: {stats.orders?.completed || 0}</div>
-              </div>
-            </div>
-
-            <div className="stat-card glass">
-              <div className="stat-icon">📝</div>
-              <div className="stat-info">
-                <h3>Assignments</h3>
-                <div className="stat-value">{stats.assignments?.total || 0}</div>
-                <div className="stat-detail">In Progress: {stats.assignments?.inProgress || 0}</div>
-              </div>
-            </div>
-
-            <div className="stat-card glass">
-              <div className="stat-icon">⭐</div>
-              <div className="stat-info">
-                <h3>Alphas</h3>
-                <div className="stat-value">{stats.alphas?.verified || 0}</div>
-                <div className="stat-detail">Pending: {stats.alphas?.pending || 0}</div>
-              </div>
-            </div>
-
-            <div className="stat-card glass">
-              <div className="stat-icon">💳</div>
-              <div className="stat-info">
-                <h3>Pending Payments</h3>
-                <div className="stat-value">{stats.payments?.pendingRequests || 0}</div>
-                <div className="stat-detail">{formatCurrency(stats.payments?.totalPending || 0)}</div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="error">Failed to load statistics</div>
-        )}
-      </main>
-    </div>
-  );
+  // Redirect to users page as requested (keeping only user management)
+  return <Navigate to="/users" replace />;
 }
 
 // Import pages
@@ -318,6 +247,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
+          {/*
           <Route path="/marketplace" element={<ProtectedRoute><MarketplacePage /></ProtectedRoute>} />
           <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
           <Route path="/payments" element={<ProtectedRoute><PaymentsPage /></ProtectedRoute>} />
@@ -327,18 +257,17 @@ export default function App() {
           <Route path="/analytics/users/:id" element={<ProtectedRoute><AnalyticsUserDetail /></ProtectedRoute>} />
           <Route path="/analytics/societies/:id" element={<ProtectedRoute><AnalyticsSocietyDetail /></ProtectedRoute>} />
           <Route path="/analytics/posts/:id" element={<ProtectedRoute><AnalyticsPostDetail /></ProtectedRoute>} />
-          {/* Community and Content */}
           <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
           <Route path="/stories" element={<ProtectedRoute><StoriesPage /></ProtectedRoute>} />
           <Route path="/assignments" element={<ProtectedRoute><AssignmentsPage /></ProtectedRoute>} />
           <Route path="/transactions" element={<ProtectedRoute><TransactionsPage /></ProtectedRoute>} />
           <Route path="/feature-flags" element={<ProtectedRoute><FeatureFlagsPage /></ProtectedRoute>} />
           <Route path="/events" element={<ProtectedRoute><EventsPage /></ProtectedRoute>} />
-          {/* CampusMart Analytics */}
           <Route path="/campusmart" element={<ProtectedRoute><CampusMartDashboard /></ProtectedRoute>} />
           <Route path="/campusmart/revenue" element={<ProtectedRoute><CampusMartRevenue /></ProtectedRoute>} />
           <Route path="/campusmart/users" element={<ProtectedRoute><CampusMartUsers /></ProtectedRoute>} />
           <Route path="/campusmart/alphas" element={<ProtectedRoute><CampusMartAlphas /></ProtectedRoute>} />
+          */}
         </Routes>
         <ToastContainer position="top-right" autoClose={3000} />
       </AuthProvider>

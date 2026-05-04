@@ -27,13 +27,16 @@ export default function Sidebar({ active }) {
             label: 'College Paglu',
             items: [
                 { id: 'dashboard', icon: '📊', label: 'Overview', path: '/' },
+                /*
                 { id: 'assignments', icon: '📝', label: 'Assignments', path: '/assignments' },
                 { id: 'alphas', icon: '⭐', label: 'Alphas', path: '/alphas' },
                 { id: 'payments', icon: '💳', label: 'Payments', path: '/payments' },
                 { id: 'transactions', icon: '🧾', label: 'Transactions', path: '/transactions' },
+                */
                 { id: 'users', icon: '🔍', label: 'User Mgmt', path: '/users' },
             ]
         },
+        /*
         {
             id: 'lazypeeps',
             label: 'LazyPeeps',
@@ -59,6 +62,7 @@ export default function Sidebar({ active }) {
                 { id: 'feature-flags', icon: '🚩', label: 'Feature Flags', path: '/feature-flags' },
             ]
         }
+        */
     ];
 
     return (
