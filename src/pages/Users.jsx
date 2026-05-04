@@ -8,6 +8,8 @@ import { api } from '../api/client';
 import { formatDate, formatPhoneNumber } from '../utils/formatters';
 import './Users.css';
 
+const PAGE_SIZE = 20;
+
 export default function UsersPage() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -19,24 +21,37 @@ export default function UsersPage() {
     const [newRole, setNewRole] = useState('');
     const [actionLoading, setActionLoading] = useState(false);
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalUsers, setTotalUsers] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
 
-    const fetchUsers = async () => {
+    useEffect(() => {
+        fetchUsers(currentPage);
+    }, [currentPage]);
+
+    const fetchUsers = async (page = 1) => {
         setLoading(true);
-        const { data, error } = await api.get('/users');
+        const { data, error } = await api.get(`/users?page=${page}&limit=${PAGE_SIZE}`);
 
         if (error) {
             toast.error('Failed to load users');
             console.error('Error loading users:', error);
         } else {
             console.log('[Users] API Response:', data);
-            const users = Array.isArray(data) ? data :
-                Array.isArray(data?.data) ? data.data :
+            // data shape: { success, data: [...users], meta: { pagination } }
+            const usersList = Array.isArray(data?.data) ? data.data :
+                Array.isArray(data) ? data :
                     [];
-            console.log('[Users] Extracted users:', users.length);
-            setUsers(users);
+            console.log('[Users] Extracted users:', usersList.length);
+            setUsers(usersList);
+
+            // Extract pagination from meta
+            const pagination = data?.meta?.pagination;
+            if (pagination) {
+                setTotalUsers(pagination.total || 0);
+                setTotalPages(pagination.totalPages || 1);
+            }
         }
         setLoading(false);
     };
@@ -53,7 +68,7 @@ export default function UsersPage() {
             toast.error(`Failed to ${user.isActive ? 'suspend' : 'unsuspend'} user`);
         } else {
             toast.success(`User ${user.isActive ? 'suspended' : 'unsuspended'} successfully`);
-            fetchUsers();
+            fetchUsers(currentPage);
         }
         setActionLoading(false);
         setShowModal(false);
@@ -69,7 +84,7 @@ export default function UsersPage() {
             toast.error('Failed to delete user');
         } else {
             toast.success('User deleted successfully');
-            fetchUsers();
+            fetchUsers(currentPage);
         }
         setActionLoading(false);
         setShowDeleteDialog(false);
@@ -87,7 +102,7 @@ export default function UsersPage() {
             toast.error('Failed to update user role');
         } else {
             toast.success('User role updated successfully');
-            fetchUsers();
+            fetchUsers(currentPage);
         }
         setActionLoading(false);
         setShowRoleDialog(false);
@@ -139,6 +154,50 @@ export default function UsersPage() {
         setShowRoleDialog(true);
     };
 
+    // Pagination helpers
+    const goToPage = (page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
+    // Generate page numbers to display (show max 7 page buttons)
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisible = 7;
+
+        if (totalPages <= maxVisible) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            // Always show first page
+            pages.push(1);
+
+            let start = Math.max(2, currentPage - 2);
+            let end = Math.min(totalPages - 1, currentPage + 2);
+
+            // Adjust range so we always show 5 middle pages
+            if (currentPage <= 3) {
+                end = Math.min(totalPages - 1, 5);
+            }
+            if (currentPage >= totalPages - 2) {
+                start = Math.max(2, totalPages - 4);
+            }
+
+            if (start > 2) pages.push('...');
+            for (let i = start; i <= end; i++) pages.push(i);
+            if (end < totalPages - 1) pages.push('...');
+
+            // Always show last page
+            pages.push(totalPages);
+        }
+
+        return pages;
+    };
+
+    // Calculate the range of users being shown
+    const startUser = (currentPage - 1) * PAGE_SIZE + 1;
+    const endUser = Math.min(currentPage * PAGE_SIZE, totalUsers);
+
     return (
         <div className="page-container">
             <Sidebar active="users" />
@@ -148,7 +207,7 @@ export default function UsersPage() {
                         <h1>User Management</h1>
                         <p>Manage all registered users on the platform</p>
                     </div>
-                    <button className="btn-primary" onClick={fetchUsers}>
+                    <button className="btn-primary" onClick={() => fetchUsers(currentPage)}>
                         🔄 Refresh
                     </button>
                 </div>
@@ -159,7 +218,12 @@ export default function UsersPage() {
                         onSearch={setSearchTerm}
                     />
                     <div className="toolbar-stats">
-                        <span>Total Users: <strong>{users.length}</strong></span>
+                        <span>Total Users: <strong>{totalUsers}</strong></span>
+                        {totalPages > 1 && (
+                            <span className="page-indicator">
+                                Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
+                            </span>
+                        )}
                     </div>
                 </div>
 
@@ -170,6 +234,64 @@ export default function UsersPage() {
                     emptyMessage="No users found"
                     onRowClick={handleRowClick}
                 />
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="pagination-container">
+                        <div className="pagination-info">
+                            Showing <strong>{startUser}</strong>–<strong>{endUser}</strong> of <strong>{totalUsers}</strong> users
+                        </div>
+                        <div className="pagination-controls">
+                            <button
+                                className="pagination-btn pagination-nav"
+                                onClick={() => goToPage(1)}
+                                disabled={currentPage === 1}
+                                title="First Page"
+                            >
+                                ⏮
+                            </button>
+                            <button
+                                className="pagination-btn pagination-nav"
+                                onClick={() => goToPage(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                title="Previous Page"
+                            >
+                                ◀
+                            </button>
+
+                            {getPageNumbers().map((pageNum, idx) => (
+                                pageNum === '...' ? (
+                                    <span key={`ellipsis-${idx}`} className="pagination-ellipsis">…</span>
+                                ) : (
+                                    <button
+                                        key={pageNum}
+                                        className={`pagination-btn ${currentPage === pageNum ? 'pagination-active' : ''}`}
+                                        onClick={() => goToPage(pageNum)}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                )
+                            ))}
+
+                            <button
+                                className="pagination-btn pagination-nav"
+                                onClick={() => goToPage(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                title="Next Page"
+                            >
+                                ▶
+                            </button>
+                            <button
+                                className="pagination-btn pagination-nav"
+                                onClick={() => goToPage(totalPages)}
+                                disabled={currentPage === totalPages}
+                                title="Last Page"
+                            >
+                                ⏭
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* User Details Modal */}
                 {showModal && selectedUser && (
