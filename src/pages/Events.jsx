@@ -28,9 +28,6 @@ export default function EventsPage() {
 
     const LIMIT = 10;
 
-    useEffect(() => {
-        fetchEvents();
-    }, [page]);
 
     const fetchEvents = async () => {
         setLoading(true);
@@ -48,6 +45,10 @@ export default function EventsPage() {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        fetchEvents();
+    }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleOpenModal = (event = null) => {
         if (event) {

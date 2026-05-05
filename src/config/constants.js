@@ -174,9 +174,11 @@ export const ENDPOINTS = {
     POST_BY_ID: (id) => `/community/posts/${id}`,
     POST_COMMENTS: (id) => `/community/posts/${id}/comments`,
     COMMENT_BY_ID: (id) => `/community/comments/${id}`,
+    ADMIN_DELETE_POST: (id) => `/admin/posts/${id}`,
     STORIES: '/community/stories',
     STORY_BY_ID: (id) => `/community/stories/${id}`,
     STORY_FEED: '/community/stories/feed',
+    CONFESSIONS: '/community/confessions',
     EVENTS: '/community/events',
     EVENT_BY_ID: (id) => `/community/events/${id}`,
 

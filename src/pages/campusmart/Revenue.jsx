@@ -12,9 +12,6 @@ export default function RevenuePage() {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
 
-    useEffect(() => {
-        fetchRevenue();
-    }, [period]);
 
     const fetchRevenue = async () => {
         setLoading(true);
@@ -26,6 +23,11 @@ export default function RevenuePage() {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        fetchRevenue();
+    }, [period]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
     const formatCurrency = (value) => `₹${value?.toLocaleString() || 0}`;
 

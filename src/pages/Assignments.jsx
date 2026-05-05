@@ -25,9 +25,7 @@ export default function AssignmentsPage() {
     const [selectedAssignment, setSelectedAssignment] = useState(null);
     const [deleteDialog, setDeleteDialog] = useState({ open: false, assignment: null });
 
-    useEffect(() => {
-        fetchAssignments();
-    }, []);
+
 
     const fetchAssignments = async () => {
         setLoading(true);
@@ -87,6 +85,10 @@ export default function AssignmentsPage() {
         setAssignments(assignmentsList);
         setLoading(false);
     };
+
+    useEffect(() => {
+        fetchAssignments();
+    }, []);
 
 
     const handleAssignClick = (assignment) => {

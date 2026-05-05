@@ -12,9 +12,6 @@ export default function UsersPage() {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
 
-    useEffect(() => {
-        fetchUsers();
-    }, [period]);
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -26,6 +23,11 @@ export default function UsersPage() {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        fetchUsers();
+    }, [period]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
     return (
         <div className="page-container">

@@ -18,7 +18,7 @@ export default function AssignAlphaModal({ isOpen, onClose, assignment, onAssign
       fetchVerifiedAlphas();
       setAgreedPrice(assignment?.budget?.min || '');
     }
-  }, [isOpen]);
+  }, [isOpen, assignment?.budget?.min]);
 
   const fetchVerifiedAlphas = async () => {
     setLoading(true);

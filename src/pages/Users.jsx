@@ -26,9 +26,6 @@ export default function UsersPage() {
     const [totalUsers, setTotalUsers] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
 
-    useEffect(() => {
-        fetchUsers(currentPage);
-    }, [currentPage]);
 
     const fetchUsers = async (page = 1) => {
         setLoading(true);
@@ -55,6 +52,10 @@ export default function UsersPage() {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        fetchUsers(currentPage);
+    }, [currentPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleSuspendUser = async (user) => {
         setActionLoading(true);

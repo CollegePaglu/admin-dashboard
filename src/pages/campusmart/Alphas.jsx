@@ -8,9 +8,6 @@ export default function AlphasPage() {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
 
-    useEffect(() => {
-        fetchAlphas();
-    }, []);
 
     const fetchAlphas = async () => {
         setLoading(true);
@@ -22,6 +19,11 @@ export default function AlphasPage() {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        fetchAlphas();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
 
     return (
         <div className="page-container">

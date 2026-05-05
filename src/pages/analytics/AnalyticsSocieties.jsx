@@ -8,11 +8,11 @@ const AnalyticsSocieties = () => {
     const [societies, setSocieties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [sort, setSort] = useState({ by: 'healthScore', order: 'desc' });
-    const { page, limit, setPage, setTotal, paginationProps } = usePagination({ initialLimit: 10 });
+    const { page, limit, setTotal, paginationProps } = usePagination({ initialLimit: 10 });
 
     useEffect(() => {
         fetchSocieties();
-    }, [page, limit, sort]);
+    }, [page, limit, sort]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const fetchSocieties = async () => {
         setLoading(true);

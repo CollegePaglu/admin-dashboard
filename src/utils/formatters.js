@@ -24,7 +24,7 @@ export const formatDate = (date, formatStr = 'MMM dd, yyyy') => {
     try {
         const dateObj = typeof date === 'string' ? parseISO(date) : date;
         return format(dateObj, formatStr);
-    } catch (error) {
+    } catch {
         return 'Invalid date';
     }
 };
@@ -51,7 +51,7 @@ export const formatRelativeTime = (date) => {
     try {
         const dateObj = typeof date === 'string' ? parseISO(date) : date;
         return formatDistanceToNow(dateObj, { addSuffix: true });
-    } catch (error) {
+    } catch {
         return 'Invalid date';
     }
 };

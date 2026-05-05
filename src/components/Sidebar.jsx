@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../App';
+import { useAuth } from '../context/AuthContext';
 
 export default function Sidebar({ active }) {
     const { logout } = useAuth();
@@ -34,6 +34,7 @@ export default function Sidebar({ active }) {
                 { id: 'transactions', icon: '🧾', label: 'Transactions', path: '/transactions' },
                 */
                 { id: 'users', icon: '🔍', label: 'User Mgmt', path: '/users' },
+                { id: 'confessions', icon: '🤫', label: 'Confessions', path: '/confessions' },
             ]
         },
         /*

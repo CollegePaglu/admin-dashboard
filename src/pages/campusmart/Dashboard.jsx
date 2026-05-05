@@ -15,13 +15,6 @@ export default function CampusMartDashboard() {
     const [assignments, setAssignments] = useState([]);
     const [statusFilter, setStatusFilter] = useState('');
 
-    useEffect(() => {
-        fetchAnalytics();
-    }, [period]);
-
-    useEffect(() => {
-        fetchAssignmentsList();
-    }, [statusFilter]);
 
     const fetchAnalytics = async () => {
         setLoading(true);
@@ -43,6 +36,14 @@ export default function CampusMartDashboard() {
             setAssignments(result.assignments || []);
         }
     };
+
+    useEffect(() => {
+        fetchAnalytics();
+    }, [period]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        fetchAssignmentsList();
+    }, [statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Merge chart data for combined view
     const mergeChartData = () => {

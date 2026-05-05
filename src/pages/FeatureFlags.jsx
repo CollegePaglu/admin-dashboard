@@ -64,7 +64,7 @@ export default function FeatureFlags() {
             // Preserve other fields if needed, or simple reset
         };
 
-        const { data, error } = await configApi.update({
+        const { error } = await configApi.update({
             key: editingConfig.key,
             value: newValue,
             description: editingConfig.description,

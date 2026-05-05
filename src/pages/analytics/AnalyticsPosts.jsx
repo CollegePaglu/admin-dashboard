@@ -9,11 +9,11 @@ const AnalyticsPosts = () => {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [sort, setSort] = useState({ by: 'hotnessScore', order: 'desc' });
-    const { page, limit, setPage, setTotal, paginationProps } = usePagination({ initialLimit: 10 });
+    const { page, limit, setTotal, paginationProps } = usePagination({ initialLimit: 10 });
 
     useEffect(() => {
         fetchPosts();
-    }, [page, limit, sort]);
+    }, [page, limit, sort]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const fetchPosts = async () => {
         setLoading(true);

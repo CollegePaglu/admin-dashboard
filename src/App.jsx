@@ -1,69 +1,15 @@
-import { useState, useEffect, createContext, useContext } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 
 // API and utilities
 import { api } from './api/client';
-import { ENDPOINTS, ORDER_STATUS, LISTING_STATUS, PAYMENT_STATUS, ALPHA_STATUS, STATUS_COLORS } from './config/constants';
-import { formatCurrency, formatDate, formatRelativeTime, formatStatus, getInitials } from './utils/formatters';
-import { exportToCSV } from './utils/exportData';
+import { ENDPOINTS } from './config/constants';
 
-// Components
-import DataTable from './components/DataTable';
-import Modal from './components/Modal';
-import ConfirmDialog from './components/ConfirmDialog';
-import SearchBar from './components/SearchBar';
-
-// Hooks
-import { usePagination } from './hooks/usePagination';
-
-// ============================================
-// AUTH CONTEXT
-// ============================================
-
-const AuthContext = createContext(null);
-
-export const useAuth = () => useContext(AuthContext);
-
-function AuthProvider({ children }) {
-  const [admin, setAdmin] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    const storedAdmin = localStorage.getItem('adminData');
-    if (token && storedAdmin) {
-      setAdmin(JSON.parse(storedAdmin));
-    }
-    setLoading(false);
-  }, []);
-
-  const login = (adminData, tokens) => {
-    localStorage.setItem('adminToken', tokens.accessToken);
-    localStorage.setItem('adminRefreshToken', tokens.refreshToken);
-    localStorage.setItem('adminData', JSON.stringify(adminData));
-    setAdmin(adminData);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminRefreshToken');
-    localStorage.removeItem('adminData');
-    setAdmin(null);
-  };
-
-  if (loading) {
-    return <div className="loading-screen">Loading...</div>;
-  }
-
-  return (
-    <AuthContext.Provider value={{ admin, login, logout, isAuthenticated: !!admin }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
+// Auth Context
+import { useAuth, AuthProvider } from './context/AuthContext';
 
 // ============================================
 // PROTECTED ROUTE
@@ -77,20 +23,7 @@ function ProtectedRoute({ children }) {
 // Import Sidebar
 import Sidebar from './components/Sidebar';
 
-// ============================================
-// STATUS BADGE COMPONENT
-// ============================================
 
-function StatusBadge({ status }) {
-  const color = STATUS_COLORS[status] || '#6b7280';
-  return (
-    <span className="status-badge" style={{ backgroundColor: color }}>
-      {formatStatus(status)}
-    </span>
-  );
-}
-
-// ============================================
 // LOGIN PAGE
 // ============================================
 
@@ -230,6 +163,7 @@ import StoriesPage from './pages/Stories';
 import CommunityPage from './pages/Community';
 import TransactionsPage from './pages/Transactions';
 import FeatureFlagsPage from './pages/FeatureFlags';
+import ConfessionsPage from './pages/Confessions';
 import EventsPage from './pages/Events';
 
 // CampusMart Analytics Pages
@@ -247,6 +181,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
+          <Route path="/confessions" element={<ProtectedRoute><ConfessionsPage /></ProtectedRoute>} />
           {/*
           <Route path="/marketplace" element={<ProtectedRoute><MarketplacePage /></ProtectedRoute>} />
           <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />

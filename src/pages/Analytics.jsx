@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import Sidebar from '../components/Sidebar';
-import { toast } from 'react-toastify';
 import './Analytics.css';
-import { useAuth } from '../App';
+import { useAuth } from '../context/AuthContext';
 import { FaSearch, FaCommentDots } from 'react-icons/fa';
 import { getInitials } from '../utils/formatters';
 

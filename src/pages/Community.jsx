@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import Sidebar from '../components/Sidebar';
 import { api } from '../api/client';
@@ -78,15 +78,16 @@ function PostModal({ post, onClose, onDelete }) {
 
     useEffect(() => {
         if (!post) return;
-        const fetchComments = async () => {
+        let active = true;
+        (async () => {
             setLoadingComments(true);
             const { data, error } = await api.get(`/community/posts/${post._id}/comments`, { params: { limit: 50 } });
-            if (!error && data?.data?.data) {
+            if (active && !error && data?.data?.data) {
                 setComments(data.data.data);
             }
-            setLoadingComments(false);
-        };
-        fetchComments();
+            if (active) setLoadingComments(false);
+        })();
+        return () => { active = false; };
     }, [post]);
 
     const handleDeleteComment = async (commentId) => {
@@ -245,7 +246,7 @@ export default function CommunityPage() {
 
     const LIMIT = 20;
 
-    const fetchPosts = useCallback(async () => {
+    const fetchPosts = async () => {
         setLoading(true);
         const params = { page, limit: LIMIT, sortBy, includeUpdates: true };
         if (search) params.search = search;
@@ -255,9 +256,7 @@ export default function CommunityPage() {
         if (error) {
             toast.error('Failed to load posts');
         } else {
-            // API: { success, data: [...], meta: { total, page, totalPages } }
             let items = Array.isArray(data?.data) ? data.data : (data?.posts || data || []);
-            // Filter by author type client-side if needed
             if (authorFilter !== 'All') {
                 items = items.filter(p => p.authorType === authorFilter);
             }
@@ -266,17 +265,22 @@ export default function CommunityPage() {
             setTotalPages(data?.meta?.totalPages ?? data?.pagination?.totalPages ?? 1);
         }
         setLoading(false);
-    }, [page, search, typeFilter, authorFilter, sortBy]);
+    };
 
-    useEffect(() => { fetchPosts(); }, [fetchPosts]);
+    useEffect(() => {
+        fetchPosts();
+    }, [page, search, typeFilter, authorFilter, sortBy]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Reset to page 1 when filters change
-    useEffect(() => { setPage(1); }, [search, typeFilter, authorFilter, sortBy]);
+    // Wrap filter setters to also reset page
+    const updateSearch = (val) => { setSearch(val); setPage(1); };
+    const updateTypeFilter = (val) => { setTypeFilter(val); setPage(1); };
+    const updateAuthorFilter = (val) => { setAuthorFilter(val); setPage(1); };
+    const updateSortBy = (val) => { setSortBy(val); setPage(1); };
 
     const handleDelete = async (postId) => {
         if (!window.confirm('Permanently delete this post? This cannot be undone.')) return;
         setDeleting(d => ({ ...d, [postId]: true }));
-        const { error } = await api.delete(`/community/posts/${postId}`);
+        const { error } = await api.delete(`/admin/posts/${postId}`);
         setDeleting(d => ({ ...d, [postId]: false }));
         if (error) {
             toast.error('Failed to delete post: ' + (error.message || 'Unknown error'));
@@ -288,10 +292,7 @@ export default function CommunityPage() {
         }
     };
 
-    const getAuthorName = (post) => {
-        const a = post.author;
-        return a?.displayName || a?.name || (a?.firstName ? `${a.firstName} ${a.lastName || ''}`.trim() : '');
-    };
+
 
     return (
         <div className="page-container">
@@ -345,7 +346,7 @@ export default function CommunityPage() {
                         <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: 14 }}>🔍</span>
                         <input
                             value={search}
-                            onChange={e => setSearch(e.target.value)}
+                            onChange={e => updateSearch(e.target.value)}
                             placeholder="Search content, title, author…"
                             style={{
                                 width: '100%', padding: '9px 12px 9px 34px', borderRadius: 10,
@@ -356,19 +357,19 @@ export default function CommunityPage() {
                     </div>
 
                     {/* Author type filter */}
-                    <select value={authorFilter} onChange={e => setAuthorFilter(e.target.value)}
+                    <select value={authorFilter} onChange={e => updateAuthorFilter(e.target.value)}
                         style={{ padding: '9px 12px', borderRadius: 10, border: '1.5px solid #e2e8f0', fontSize: 13, background: '#f8fafc', cursor: 'pointer' }}>
                         {AUTHOR_TYPES.map(a => <option key={a}>{a === 'CollegeSociety' ? 'Society' : a}</option>)}
                     </select>
 
                     {/* Post type filter */}
-                    <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
+                    <select value={typeFilter} onChange={e => updateTypeFilter(e.target.value)}
                         style={{ padding: '9px 12px', borderRadius: 10, border: '1.5px solid #e2e8f0', fontSize: 13, background: '#f8fafc', cursor: 'pointer' }}>
                         {POST_TYPES.map(t => <option key={t}>{t}</option>)}
                     </select>
 
                     {/* Sort */}
-                    <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+                    <select value={sortBy} onChange={e => updateSortBy(e.target.value)}
                         style={{ padding: '9px 12px', borderRadius: 10, border: '1.5px solid #e2e8f0', fontSize: 13, background: '#f8fafc', cursor: 'pointer' }}>
                         <option value="recent">🕐 Recent</option>
                         <option value="trending">🔥 Trending</option>
@@ -392,7 +393,6 @@ export default function CommunityPage() {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
                         {posts.map(post => {
                             const coverImg = normaliseImg(post.images?.[0]);
-                            const authorName = getAuthorName(post);
                             const isDeleting = deleting[post._id];
 
                             return (
